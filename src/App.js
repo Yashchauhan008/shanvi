@@ -10,10 +10,11 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import Parties from './pages/Parties';             // <-- Import new page
-import PartyDetail from './pages/PartyDetail';     // <-- Import new page
-import Factories from './pages/Factories';         // <-- Import new page
-import FactoryDetail from './pages/FactoryDetail'; // <-- Import new page
+import Parties from './pages/Parties';
+import PartyDetail from './pages/PartyDetail';
+import Factories from './pages/Factories';
+import FactoryDetail from './pages/FactoryDetail';
+import Orders from './pages/Orders'; // <-- Import the new Orders page
 
 function App() {
   return (
@@ -29,14 +30,13 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/parties" element={<Parties />} />
-              <Route path="/party/:id" element={<PartyDetail />} /> {/* Dynamic route for party details */}
+              <Route path="/party/:id" element={<PartyDetail />} />
               <Route path="/factories" element={<Factories />} />
-              <Route path="/factory/:id" element={<FactoryDetail />} /> {/* Dynamic route for factory details */}
-              {/* <Route path="/orders" element={<Orders />} /> */}
+              <Route path="/factory/:id" element={<FactoryDetail />} />
+              <Route path="/orders" element={<Orders />} /> {/* <-- Add the new route here */}
             </Route>
           </Route>
           
-          {/* Redirect root to dashboard if logged in, otherwise to login */}
           <Route path="/" element={<Navigate to="/dashboard" />} />
         </Routes>
       </Router>
