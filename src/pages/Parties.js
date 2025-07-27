@@ -1,42 +1,87 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { PencilIcon, PlusIcon } from '@heroicons/react/24/solid';
+import Modal from '../components/Modal';
+import PartyForm from '../components/PartyForm';
 
 // --- DUMMY DATA ---
-const dummyParties = [
-  { id: 'p1', name: 'Alpha Traders', factories: ['Alpha Steel', 'Alpha Packaging'] },
-  { id: 'p2', name: 'Beta Logistics', factories: ['Beta Warehouse'] },
-  { id: 'p3', name: 'Gamma Supplies', factories: ['Gamma Plastics', 'Gamma Distribution'] },
-  { id: 'p4', name: 'Delta Corp', factories: ['Delta Manufacturing'] },
+const initialParties = [
+  { id: 'p1', name: 'Alpha Traders' },
+  { id: 'p2', name: 'Beta Logistics' },
+  { id: 'p3', name: 'Gamma Supplies' },
+  { id: 'p4', name: 'Delta Corp' },
 ];
 
 const Parties = () => {
-  return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-      {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Parties</h1>
-        <p className="mt-1 text-md text-gray-500">Select a party to view details.</p>
-      </div>
+  const [parties, setParties] = useState(initialParties);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [partyToEdit, setPartyToEdit] = useState(null);
 
-      {/* Grid of Party Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {dummyParties.map((party) => (
-          <Link to={`/party/${party.id}`} key={party.id} className="block">
-            <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 ease-in-out p-6 h-full">
-              <h2 className="text-xl font-bold text-indigo-600">{party.name}</h2>
-              <div className="mt-4">
-                <h3 className="text-sm font-semibold text-gray-500">Associated Factories:</h3>
-                <ul className="mt-2 list-disc list-inside text-gray-600 text-sm">
-                  {party.factories.map((factory, index) => (
-                    <li key={index}>{factory}</li>
-                  ))}
-                </ul>
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setPartyToEdit(null); // Clear editing state on close
+  };
+
+  const handleAddParty = () => {
+    setPartyToEdit(null); // Ensure we are in "add" mode
+    openModal();
+  };
+
+  const handleEditParty = (party) => {
+    setPartyToEdit(party);
+    openModal();
+  };
+
+  const handleSaveParty = (partyData) => {
+    if (partyData.id) {
+      // Editing existing party
+      setParties(parties.map(p => p.id === partyData.id ? partyData : p));
+    } else {
+      // Adding new party
+      const newParty = { ...partyData, id: `p${Date.now()}` }; // Create a pseudo-unique ID
+      setParties([...parties, newParty]);
+    }
+    closeModal();
+  };
+
+  return (
+    <>
+      <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Parties</h1>
+            <p className="mt-1 text-md text-gray-500">Manage your business parties.</p>
+          </div>
+          <button
+            onClick={handleAddParty}
+            className="flex items-center gap-2 px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+          >
+            <PlusIcon className="h-5 w-5" />
+            Add Party
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {parties.map((party) => (
+            <div key={party.id} className="bg-white rounded-xl shadow-md p-6 flex flex-col justify-between">
+              <Link to={`/party/${party.id}`} className="block">
+                <h2 className="text-xl font-bold text-indigo-600 hover:underline">{party.name}</h2>
+              </Link>
+              <div className="mt-4 flex justify-end">
+                <button onClick={() => handleEditParty(party)} className="text-gray-400 hover:text-indigo-600">
+                  <PencilIcon className="h-5 w-5" />
+                </button>
               </div>
             </div>
-          </Link>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+
+      <Modal isOpen={isModalOpen} onClose={closeModal} title={partyToEdit ? 'Edit Party' : 'Add New Party'}>
+        <PartyForm onSave={handleSaveParty} partyToEdit={partyToEdit} onClose={closeModal} />
+      </Modal>
+    </>
   );
 };
 
