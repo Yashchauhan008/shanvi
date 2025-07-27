@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
 
-// --- DUMMY DATA ---
-// This data now includes a unit for each inventory item.
+// --- DUMMY DATA (Unchanged) ---
 const allParties = [
   { id: 'p1', name: 'Alpha Traders' },
   { id: 'p2', name: 'Beta Logistics' },
@@ -36,18 +35,20 @@ const allInventoryItems = [
 ];
 
 const AddOrderForm = ({ onClose }) => {
-  // State for main details
+  // --- State for main details ---
   const [productionHouse, setProductionHouse] = useState('');
   const [selectedPartyId, setSelectedPartyId] = useState('');
   const [availableFactories, setAvailableFactories] = useState([]);
+  const [vehicle, setVehicle] = useState(''); // <-- New state for Vehicle
+  const [vehicleNumber, setVehicleNumber] = useState(''); // <-- New state for Vehicle Number
   
-  // State for dynamic pallet rows
+  // --- State for dynamic pallet rows ---
   const [palletRows, setPalletRows] = useState([{ id: 1, size: '', quantity: '' }]);
 
-  // State for optional inventory items
+  // --- State for optional inventory items ---
   const [inventory, setInventory] = useState({});
 
-  // Effect to update available factories when a party is selected
+  // --- Effect to update available factories (Unchanged) ---
   useEffect(() => {
     if (selectedPartyId) {
       setAvailableFactories(allFactories.filter(f => f.partyId === selectedPartyId));
@@ -72,13 +73,15 @@ const AddOrderForm = ({ onClose }) => {
     setInventory(prev => ({ ...prev, [itemName]: value }));
   };
 
-  // --- Form Submission ---
+  // --- Form Submission (Updated to include vehicle details) ---
   const handleSubmit = (e) => {
     e.preventDefault();
     const orderData = {
       productionHouse,
       partyId: selectedPartyId,
       factoryId: e.target.factory.value,
+      vehicle,
+      vehicleNumber,
       pallets: palletRows.filter(p => p.size && p.quantity),
       inventory: inventory,
     };
@@ -127,8 +130,32 @@ const AddOrderForm = ({ onClose }) => {
         </div>
       </div>
 
+      {/* --- Vehicle Details (NEW SECTION) --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-6">
+        <div>
+            <label className="block text-sm font-medium text-gray-700">Vehicle</label>
+            <input
+                type="text"
+                value={vehicle}
+                onChange={(e) => setVehicle(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="e.g., Truck, Van"
+            />
+        </div>
+        <div>
+            <label className="block text-sm font-medium text-gray-700">Vehicle Number</label>
+            <input
+                type="text"
+                value={vehicleNumber}
+                onChange={(e) => setVehicleNumber(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="e.g., MH-12-AB-1234"
+            />
+        </div>
+      </div>
+
       {/* --- Pallet Details (Dynamic) --- */}
-      <div>
+      <div className="border-t pt-6">
         <h3 className="text-md font-medium text-gray-800">Pallet Details</h3>
         <div className="space-y-3 mt-2">
           {palletRows.map((row) => (
@@ -167,7 +194,7 @@ const AddOrderForm = ({ onClose }) => {
       </div>
 
       {/* --- Inventory Items (Optional) --- */}
-      <div>
+      <div className="border-t pt-6">
         <h3 className="text-md font-medium text-gray-800">Inventory Items (Optional)</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-5 mt-2">
           {allInventoryItems.map(item => (
@@ -190,7 +217,7 @@ const AddOrderForm = ({ onClose }) => {
       </div>
 
       {/* --- Form Actions --- */}
-      <div className="pt-4 flex justify-end space-x-3">
+      <div className="pt-6 flex justify-end space-x-3 border-t">
         <button type="button" onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
           Cancel
         </button>

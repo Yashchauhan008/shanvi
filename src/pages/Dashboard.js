@@ -3,8 +3,9 @@ import { PlusIcon } from '@heroicons/react/24/solid';
 import Modal from '../components/Modal';
 import AddOrderForm from '../components/AddOrderForm';
 import AddInventoryForm from '../components/AddInventoryForm';
+import AddBillForm from '../components/AddBillForm';
 
-// --- DUMMY DATA and API (Unchanged) ---
+// --- DUMMY DATA ---
 const fullInventoryData = [
   { id: 1, name: 'Film White', currentStock: 150, usedStock: 50, totalStock: 200 },
   { id: 2, name: 'Film Blue', currentStock: 120, usedStock: 80, totalStock: 200 },
@@ -75,13 +76,20 @@ const Dashboard = () => {
   return (
     <>
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Header with only "Add Bill" and "Add Order" Buttons */}
+        {/* Header with all three Action Buttons */}
         <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Main Dashboard</h1>
             <p className="mt-1 text-md text-gray-500">Overview of your inventory and operations.</p>
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsInventoryModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700"
+            >
+              <PlusIcon className="h-5 w-5" />
+              Add Stock
+            </button>
             <button
               onClick={() => setIsBillModalOpen(true)}
               className="flex items-center gap-2 px-4 py-2 text-white bg-gray-600 rounded-md hover:bg-gray-700"
@@ -109,7 +117,6 @@ const Dashboard = () => {
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                {/* ... Pallet table headers and body ... */}
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pallet Size</th>
@@ -132,17 +139,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* "Add Stock" button placed between the two tables */}
-          <div className="flex justify-end">
-            <button
-                onClick={() => setIsInventoryModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700"
-              >
-                <PlusIcon className="h-5 w-5" />
-                Add Incoming Stock
-            </button>
-          </div>
-
           {/* Inventory Status Card */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="p-5 border-b border-gray-200">
@@ -151,7 +147,6 @@ const Dashboard = () => {
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                {/* ... Inventory table headers and body ... */}
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item Name</th>
@@ -176,12 +171,12 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* --- Modals Section (Unchanged) --- */}
+      {/* --- Modals Section --- */}
       <Modal isOpen={isOrderModalOpen} onClose={() => setIsOrderModalOpen(false)} title="Create New Order">
         <AddOrderForm onClose={() => setIsOrderModalOpen(false)} />
       </Modal>
       <Modal isOpen={isBillModalOpen} onClose={() => setIsBillModalOpen(false)} title="Add New Bill">
-        <div><p>The form for adding a bill would go here.</p></div>
+        <AddBillForm onClose={() => setIsBillModalOpen(false)} />
       </Modal>
       <Modal isOpen={isInventoryModalOpen} onClose={() => setIsInventoryModalOpen(false)} title="Add Incoming Inventory Stock">
         <AddInventoryForm onSave={handleSaveInventory} onClose={() => setIsInventoryModalOpen(false)} />
