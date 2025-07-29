@@ -1,64 +1,86 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import { PencilIcon, PlusIcon } from '@heroicons/react/24/solid';
 import Modal from '../components/Modal';
 import FactoryForm from '../components/FactoryForm';
 
-// --- DUMMY DATA ---
-// We need both sets of data to manage the relationship
-const initialParties = [
-  { id: 'p1', name: 'Alpha Traders' },
-  { id: 'p2', name: 'Beta Logistics' },
-  { id: 'p3', name: 'Gamma Supplies' },
-  { id: 'p4', name: 'Delta Corp' },
-];
-
-const initialFactories = [
-  { id: 'f1', name: 'Alpha Steel', partyId: 'p1' },
-  { id: 'f2', name: 'Alpha Packaging', partyId: 'p1' },
-  { id: 'f3', name: 'Beta Warehouse', partyId: 'p2' },
-  { id: 'f4', name: 'Gamma Plastics', partyId: 'p3' },
-];
-
 const Factories = () => {
-  const [parties] = useState(initialParties); // Parties list is static for the dropdown
-  const [factories, setFactories] = useState(initialFactories);
+  const [factories, setFactories] = useState([]);
+  const [partyList, setPartyList] = useState([]); // For the form dropdown
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [factoryToEdit, setFactoryToEdit] = useState(null);
 
-  const openModal = () => setIsModalOpen(true);
+  const factoriesApiUrl = `${process.env.REACT_APP_API_BASE_URL}/factories`;
+  const partyListApiUrl = `${process.env.REACT_APP_API_BASE_URL}/parties`;
+
+  const fetchFactories = useCallback(async () => {
+    try {
+      const response = await axios.get(factoriesApiUrl);
+      setFactories(response.data);
+    } catch (err) {
+      setError('Failed to fetch factories.');
+      console.error(err);
+    }
+  }, [factoriesApiUrl]);
+
+  const fetchPartyList = useCallback(async () => {
+    try {
+      const response = await axios.get(partyListApiUrl);
+      setPartyList(response.data);
+    } catch (err) {
+      console.error("Failed to fetch party list for form:", err);
+    }
+  }, [partyListApiUrl]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchFactories(), fetchPartyList()]);
+      setLoading(false);
+    };
+    loadData();
+  }, [fetchFactories, fetchPartyList]);
+
   const closeModal = () => {
     setIsModalOpen(false);
     setFactoryToEdit(null);
   };
 
   const handleAddFactory = () => {
+    if (partyList.length === 0) {
+      alert("Cannot add a factory because no parties were found. Please add a party first.");
+      return;
+    }
     setFactoryToEdit(null);
-    openModal();
+    setIsModalOpen(true);
   };
 
   const handleEditFactory = (factory) => {
     setFactoryToEdit(factory);
-    openModal();
+    setIsModalOpen(true);
   };
 
-  const handleSaveFactory = (factoryData) => {
-    if (factoryData.id) {
-      // Editing
-      setFactories(factories.map(f => f.id === factoryData.id ? factoryData : f));
-    } else {
-      // Adding
-      const newFactory = { ...factoryData, id: `f${Date.now()}` };
-      setFactories([...factories, newFactory]);
+  const handleSaveFactory = async (factoryData) => {
+    try {
+      if (factoryToEdit) {
+        await axios.put(`${factoriesApiUrl}/${factoryToEdit._id}`, { name: factoryData.name });
+      } else {
+        await axios.post(factoriesApiUrl, { name: factoryData.name, party_id: factoryData.party_id });
+      }
+      closeModal();
+      await fetchFactories();
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || `A factory with this name may already exist for the selected party.`;
+      alert(`Error: ${errorMessage}`);
+      console.error(err);
     }
-    closeModal();
   };
 
-  // Helper to get party name from its ID
-  const getPartyName = (partyId) => {
-    const party = parties.find(p => p.id === partyId);
-    return party ? party.name : 'Unknown Party';
-  };
+  if (loading) return <div className="p-8 text-center">Loading factories...</div>;
+  if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
 
   return (
     <>
@@ -68,24 +90,19 @@ const Factories = () => {
             <h1 className="text-3xl font-bold text-gray-800">Factories</h1>
             <p className="mt-1 text-md text-gray-500">Manage your factory locations.</p>
           </div>
-          <button
-            onClick={handleAddFactory}
-            className="flex items-center gap-2 px-4 py-2 text-white bg-teal-600 rounded-md hover:bg-teal-700"
-          >
-            <PlusIcon className="h-5 w-5" />
-            Add Factory
+          <button onClick={handleAddFactory} className="flex items-center gap-2 px-4 py-2 text-white bg-teal-600 rounded-md hover:bg-teal-700">
+            <PlusIcon className="h-5 w-5" /> Add Factory
           </button>
         </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {factories.map((factory) => (
-            <div key={factory.id} className="bg-white rounded-xl shadow-md p-6 flex flex-col justify-between">
+            <div key={factory._id} className="bg-white rounded-xl shadow-md p-6 flex flex-col justify-between">
               <div>
-                <Link to={`/factory/${factory.id}`} className="block">
+                <Link to={`/factory/${factory._id}`} className="block">
                   <h2 className="text-xl font-bold text-teal-600 hover:underline">{factory.name}</h2>
                 </Link>
                 <p className="text-sm text-gray-500 mt-2">
-                  Owned by: <span className="font-semibold">{getPartyName(factory.partyId)}</span>
+                  Owned by: <span className="font-semibold">{factory.party_id?.name || 'N/A'}</span>
                 </p>
               </div>
               <div className="mt-4 flex justify-end">
@@ -97,9 +114,8 @@ const Factories = () => {
           ))}
         </div>
       </div>
-
       <Modal isOpen={isModalOpen} onClose={closeModal} title={factoryToEdit ? 'Edit Factory' : 'Add New Factory'}>
-        <FactoryForm onSave={handleSaveFactory} factoryToEdit={factoryToEdit} parties={parties} onClose={closeModal} />
+        <FactoryForm onSave={handleSaveFactory} factoryToEdit={factoryToEdit} parties={partyList} onClose={closeModal} />
       </Modal>
     </>
   );

@@ -1,37 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import PaginatedTable from '../components/PaginatedTable'; // <-- Import the new component
+import axios from 'axios';
+import PaginatedTable from '../components/PaginatedTable';
 
-// --- DUMMY DATA (Unchanged) ---
-const allParties = [
-  { id: 'p1', name: 'Alpha Traders' },
-  { id: 'p2', name: 'Beta Logistics' },
-  { id: 'p3', name: 'Gamma Supplies' },
-];
-const allFactories = [
-  { id: 'f1', name: 'Alpha Steel', partyId: 'p1', location: 'North Industrial Zone' },
-  { id: 'f2', name: 'Alpha Packaging', partyId: 'p1', location: 'East Logistics Park' },
-  { id: 'f3', name: 'Beta Warehouse', partyId: 'p2', location: 'Central District' },
-  { id: 'f4', name: 'Gamma Plastics', partyId: 'p3', location: 'South Manufacturing Hub' },
-  { id: 'f5', name: 'Gamma Distribution', partyId: 'p3', location: 'Westside Complex' },
-];
+// Dummy data for the pallet table, as this is not yet available from the backend
 const dummyPalletData = [
     { id: 1, size: '200x200', totalOut: 50, totalUsed: 30, remains: 20 },
     { id: 2, size: '1200x600', totalOut: 80, totalUsed: 75, remains: 5 },
-    { id: 3, size: '800x800', totalOut: 120, totalUsed: 100, remains: 20 },
-    { id: 4, size: '1000x1000', totalOut: 70, totalUsed: 50, remains: 20 },
-    { id: 5, size: '1100x900', totalOut: 95, totalUsed: 90, remains: 5 },
-    { id: 6, size: '200x200', totalOut: 10, totalUsed: 8, remains: 2 },
 ];
 
 const PartyDetail = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // Get the party ID from the URL
   const navigate = useNavigate();
 
-  const party = allParties.find(p => p.id === id);
-  const partyFactories = allFactories.filter(f => f.partyId === id);
+  const [party, setParty] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // --- Define columns for the pallet table ---
+  // --- Define columns for the pallet table (this part is still using dummy data) ---
   const palletTableColumns = [
     { Header: 'Pallet Size', accessor: 'size' },
     { Header: 'Total Out', accessor: 'totalOut' },
@@ -39,21 +25,47 @@ const PartyDetail = () => {
     { 
       Header: 'Remains', 
       accessor: 'remains',
-      // Example of a custom cell renderer for styling
       Cell: (row) => <span className="font-semibold text-indigo-600">{row.remains}</span>
     },
   ];
 
-  if (!party) {
+  // --- Fetch the specific party's details from the API ---
+  const fetchPartyDetails = useCallback(async () => {
+    try {
+      setLoading(true);
+      const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/parties/${id}`;
+      const response = await axios.get(apiUrl);
+      // The backend populates 'factory_ids' with factory objects, which is perfect
+      setParty(response.data);
+    } catch (err) {
+      setError('Failed to fetch party details.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    fetchPartyDetails();
+  }, [fetchPartyDetails]);
+
+  if (loading) {
+    return <div className="container mx-auto p-8 text-center">Loading party details...</div>;
+  }
+
+  if (error || !party) {
     return (
       <div className="container mx-auto p-8 text-center">
-        <h1 className="text-2xl font-bold text-red-600">Party Not Found</h1>
+        <h1 className="text-2xl font-bold text-red-600">{error || 'Party Not Found'}</h1>
         <Link to="/parties" className="mt-6 inline-block text-indigo-600 hover:text-indigo-800 font-semibold">
           &larr; Back to all parties
         </Link>
       </div>
     );
   }
+
+  // The associated factories are now inside party.factory_ids
+  const partyFactories = party.factory_ids || [];
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
@@ -71,8 +83,8 @@ const PartyDetail = () => {
             {partyFactories.length > 0 ? (
               partyFactories.map(factory => (
                 <button
-                  key={factory.id}
-                  onClick={() => navigate(`/factory/${factory.id}`)}
+                  key={factory._id} // Use backend's _id
+                  onClick={() => navigate(`/factory/${factory._id}`)}
                   className="px-4 py-2 text-sm font-medium text-teal-800 bg-teal-100 rounded-full hover:bg-teal-200"
                 >
                   {factory.name}
@@ -84,7 +96,7 @@ const PartyDetail = () => {
           </div>
         </div>
 
-        {/* --- Use the PaginatedTable component --- */}
+        {/* --- This table still uses dummy data but could be connected to an API later --- */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="p-5 border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-800">Pallet Details</h2>
@@ -93,7 +105,7 @@ const PartyDetail = () => {
           <PaginatedTable 
             columns={palletTableColumns} 
             data={dummyPalletData}
-            itemsPerPage={4} // You can control how many items per page
+            itemsPerPage={4}
           />
         </div>
       </div>

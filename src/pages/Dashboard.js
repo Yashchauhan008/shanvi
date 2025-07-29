@@ -1,82 +1,118 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // Import useCallback
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import Modal from '../components/Modal';
 import AddOrderForm from '../components/AddOrderForm';
 import AddInventoryForm from '../components/AddInventoryForm';
 import AddBillForm from '../components/AddBillForm';
 
-// --- DUMMY DATA ---
-const fullInventoryData = [
-  { id: 1, name: 'Film White', currentStock: 150, usedStock: 50, totalStock: 200 },
-  { id: 2, name: 'Film Blue', currentStock: 120, usedStock: 80, totalStock: 200 },
-  { id: 3, name: 'Patti Role', currentStock: 300, usedStock: 100, totalStock: 400 },
-  { id: 4, name: 'Angle Board 24', currentStock: 80, usedStock: 20, totalStock: 100 },
-  { id: 5, name: 'Angle Board 32', currentStock: 90, usedStock: 30, totalStock: 120 },
-  { id: 6, name: 'Angle Board 36', currentStock: 75, usedStock: 25, totalStock: 100 },
-  { id: 7, name: 'Angle Board 39', currentStock: 60, usedStock: 40, totalStock: 100 },
-  { id: 8, name: 'Angle Board 48', currentStock: 50, usedStock: 50, totalStock: 100 },
-  { id: 9, name: 'Cap Hit', currentStock: 500, usedStock: 250, totalStock: 750 },
-  { id: 10, name: 'Cap Simple', currentStock: 800, usedStock: 200, totalStock: 1000 },
-  { id: 11, name: 'Firmshit', currentStock: 180, usedStock: 70, totalStock: 250 },
-  { id: 12, name: 'Thermocol', currentStock: 220, usedStock: 80, totalStock: 300 },
-  { id: 13, name: 'Mettle Angle', currentStock: 130, usedStock: 70, totalStock: 200 },
-  { id: 14, name: 'Black Cover', currentStock: 400, usedStock: 150, totalStock: 550 },
-  { id: 15, name: 'Packing Clip', currentStock: 1500, usedStock: 500, totalStock: 2000 },
-  { id: 16, name: 'Patiya', currentStock: 250, usedStock: 50, totalStock: 300 },
-  { id: 17, name: 'Plypatia', currentStock: 200, usedStock: 100, totalStock: 300 },
-];
+// Helper function to format backend keys (e.g., 'film_white') into readable names ('Film White')
+const formatItemName = (key) => {
+  return key
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, char => char.toUpperCase());
+};
+
+// Dummy data for pallets, as it's not being fetched from the API yet.
 const fullPalletData = [
     { id: 1, size: '200x200', totalOut: 50, totalUsed: 30, remains: 20 },
     { id: 2, size: '1200x600', totalOut: 80, totalUsed: 75, remains: 5 },
     { id: 3, size: '800x800', totalOut: 120, totalUsed: 100, remains: 20 },
-    { id: 4, size: '1000x1000', totalOut: 70, totalUsed: 50, remains: 20 },
-    { id: 5, size: '1100x900', totalOut: 95, totalUsed: 90, remains: 5 },
 ];
-
-const fetchDashboardData = () => {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve({
-        inventory: fullInventoryData,
-        pallets: fullPalletData,
-      });
-    }, 500);
-  });
-};
 
 const Dashboard = () => {
   const [inventory, setInventory] = useState([]);
   const [pallets, setPallets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isBillModalOpen, setIsBillModalOpen] = useState(false);
   const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false);
 
-  useEffect(() => {
-    const getDashboardData = async () => {
-      setLoading(true);
-      const data = await fetchDashboardData();
-      setInventory(data.inventory);
-      setPallets(data.pallets);
-      setLoading(false);
-    };
-    getDashboardData();
-  }, []);
+  const { user } = useAuth(); // Get the logged-in user object
 
-  const handleSaveInventory = (addedData) => {
-    console.log("Data to add to inventory:", addedData);
-    alert("Inventory has been updated! Check the console for details.");
-    setIsInventoryModalOpen(false);
+  // --- STEP 1: Create a reusable function to fetch inventory ---
+  // We use useCallback to prevent this function from being recreated on every render,
+  // which is a good practice when it's a dependency of useEffect.
+  const fetchInventory = useCallback(async () => {
+    if (!user?.id) {
+      setError("User not found. Cannot fetch inventory.");
+      setLoading(false);
+      return;
+    }
+    try {
+      // We don't need to set loading to true here on re-fetches,
+      // as it would make the whole page flash.
+      setError(null);
+      const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/production-house/${user.id}/inventory`;
+      const response = await axios.get(apiUrl);
+
+      const inventoryData = response.data.data;
+      const formattedInventory = Object.entries(inventoryData)
+        .filter(([key]) => key !== '_id')
+        .map(([key, value]) => ({
+          name: formatItemName(key),
+          quantity: value,
+        }));
+      
+      setInventory(formattedInventory);
+
+    } catch (err) {
+      console.error("Failed to fetch inventory:", err);
+      setError("Could not load inventory data.");
+    } finally {
+      // Only set loading to false on the initial load
+      if (loading) setLoading(false);
+    }
+  }, [user, loading]); // Dependencies for useCallback
+
+  // --- STEP 2: Call the fetch function on initial component load ---
+  useEffect(() => {
+    setPallets(fullPalletData); // Set dummy pallet data
+    fetchInventory(); // Initial data fetch
+  }, [fetchInventory]); // The dependency is the memoized function itself
+
+  // --- STEP 3: Create the handler that saves AND then re-fetches ---
+  const handleSaveInventory = async (addedData) => {
+    if (!user?.id) {
+      alert("Error: Could not find user ID. Please log in again.");
+      return;
+    }
+
+    const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/production-house/${user.id}/inventory`;
+
+    try {
+      // Make the API call to add the new stock
+      await axios.post(apiUrl, addedData);
+      
+      alert("Inventory has been updated successfully!");
+      setIsInventoryModalOpen(false); // Close the modal
+      
+      // THIS IS THE KEY: After a successful save, call fetchInventory() again
+      // to get the latest data from the server. This will automatically
+      // update the table on the screen.
+      await fetchInventory();
+
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || "Failed to update inventory.";
+      alert(`Error: ${errorMessage}`);
+      console.error("Failed to save inventory:", err);
+    }
   };
 
   if (loading) {
     return <div className="p-8 text-center text-gray-500">Loading dashboard data...</div>;
   }
 
+  if (error) {
+    return <div className="p-8 text-center text-red-500">{error}</div>;
+  }
+
   return (
     <>
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Header with all three Action Buttons */}
+        {/* Header and Buttons (Unchanged) */}
         <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Main Dashboard</h1>
@@ -107,9 +143,9 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Tables Layout */}
+        {/* Tables Layout (Unchanged) */}
         <div className="flex flex-col gap-8">
-          {/* Pallet Details Card */}
+          {/* Pallet Details Card (Unchanged) */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="p-5 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-800">Pallet Details</h2>
@@ -139,7 +175,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Inventory Status Card */}
+          {/* Inventory Status Card (Unchanged) */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="p-5 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-800">Inventory Status</h2>
@@ -150,18 +186,14 @@ const Dashboard = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Current</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Used</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Current Quantity</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {inventory.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50">
+                    <tr key={item.name} className="hover:bg-gray-50">
                       <td className="px-6 py-4 text-sm font-medium text-gray-900">{item.name}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{item.currentStock}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{item.usedStock}</td>
-                      <td className="px-6 py-4 text-sm font-semibold text-gray-800">{item.totalStock}</td>
+                      <td className="px-6 py-4 text-sm font-semibold text-gray-800">{item.quantity}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -171,7 +203,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* --- Modals Section --- */}
+      {/* Modals Section (Unchanged) */}
       <Modal isOpen={isOrderModalOpen} onClose={() => setIsOrderModalOpen(false)} title="Create New Order">
         <AddOrderForm onClose={() => setIsOrderModalOpen(false)} />
       </Modal>
