@@ -1,5 +1,6 @@
 import React from 'react';
-import PalletManager from '../components/PalletManager'; // <-- Import the new component
+import PalletManager from '../components/PalletManager';
+import AssociateCompanyManager from '../components/AssociateCompanyManager'; // <-- Import the new component
 
 const MastersAdmin = () => {
   return (
@@ -8,25 +9,16 @@ const MastersAdmin = () => {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Masters</h1>
-          <p className="mt-1 text-md text-gray-500">Manage core application data like pallet sizes.</p>
+          <p className="mt-1 text-md text-gray-500">Manage core application data.</p>
         </div>
       </div>
 
-      {/* 
-        The main content area.
-        We simply render the PalletManager component here.
-        All the complex logic is now neatly contained within it.
-      */}
       <div className="space-y-8">
+        {/* The existing Pallet Manager */}
         <PalletManager />
 
-        {/* 
-          FUTURE-PROOF: If you need to add another master editor, 
-          you can just create another component like 'VehicleManager' 
-          and place it here.
-          
-          <VehicleManager /> 
-        */}
+        {/* The new Associate Company Manager */}
+        <AssociateCompanyManager /> 
       </div>
     </div>
   );
