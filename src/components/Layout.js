@@ -65,6 +65,13 @@ const Layout = () => {
                 >
                   Orders
                 </NavLink>
+                <NavLink 
+                  to="/master-admin" 
+                  className="text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-md text-sm font-medium"
+                  style={({ isActive }) => isActive ? activeLinkStyle : undefined}
+                >
+                  Master
+                </NavLink>
               </div>
             </div>
 

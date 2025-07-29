@@ -15,6 +15,7 @@ import PartyDetail from './pages/PartyDetail';
 import Factories from './pages/Factories';
 import FactoryDetail from './pages/FactoryDetail';
 import Orders from './pages/Orders'; // <-- Import the new Orders page
+import MasterAdmin from './pages/MasterAdmin';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
               <Route path="/factories" element={<Factories />} />
               <Route path="/factory/:id" element={<FactoryDetail />} />
               <Route path="/orders" element={<Orders />} /> {/* <-- Add the new route here */}
+              <Route path="/master-admin" element={<MasterAdmin />} /> {/* <-- Add the new route */}
             </Route>
           </Route>
           
