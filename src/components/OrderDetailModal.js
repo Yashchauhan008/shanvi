@@ -1,75 +1,87 @@
 import React from 'react';
-import Modal from './Modal'; // Reuse our existing Modal component
+import Modal from './Modal';
+
+// --- THE FIX IS HERE: Define the missing array ---
+// This array lists all the possible inventory keys from your schema.
+const inventoryFields = [
+  'film_white', 'film_blue', 'patti_role', 'angle_board_24', 'angle_board_32',
+  'angle_board_36', 'angle_board_39', 'angle_board_48', 'cap_hit', 'cap_simple',
+  'firmshit', 'thermocol', 'mettle_angle', 'black_cover', 'packing_clip', 'patiya', 'plypatia'
+];
 
 const OrderDetailModal = ({ isOpen, onClose, order }) => {
-  if (!order) return null; // Don't render if no order is selected
-
-  // Helper to get the name from an ID
-  const getNameById = (id, list) => list.find(item => item.id === id)?.name || 'N/A';
+  if (!order) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Details for Order #${order.id}`}>
+    <Modal isOpen={isOpen} onClose={onClose} title={`Details for ${order.customOrderId}`}>
       <div className="space-y-6 text-sm">
-        {/* --- Main Details --- */}
+        {/* ... (The rest of the JSX is unchanged) ... */}
         <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
           <div>
-            <p className="font-semibold text-gray-600">Production House</p>
-            <p className="text-gray-900">{order.productionHouseName}</p>
+            <p className="font-semibold text-gray-600">Source</p>
+            <p className="text-gray-900">{order.source?.name || order.source?.username || 'N/A'}</p>
+          </div>
+          <div>
+            <p className="font-semibold text-gray-600">Transaction Type</p>
+            <p className="text-gray-900 capitalize">{order.transactionType}</p>
           </div>
           <div>
             <p className="font-semibold text-gray-600">Date</p>
-            <p className="text-gray-900">{order.date}</p>
+            <p className="text-gray-900">{new Date(order.date).toLocaleDateString()}</p>
           </div>
           <div>
             <p className="font-semibold text-gray-600">Party</p>
-            <p className="text-gray-900">{order.partyName}</p>
+            <p className="text-gray-900">{order.party_id?.name || 'N/A'}</p>
           </div>
           <div>
             <p className="font-semibold text-gray-600">Factory</p>
-            <p className="text-gray-900">{order.factoryName}</p>
+            <p className="text-gray-900">{order.factory_id?.name || 'N/A'}</p>
+          </div>
+           <div>
+            <p className="font-semibold text-gray-600">Vehicle</p>
+            <p className="text-gray-900">{order.vehicle} ({order.vehicle_number})</p>
           </div>
         </div>
 
-        {/* --- Pallet Details --- */}
-        <div>
-          <h4 className="font-semibold text-gray-800 mb-2">Pallet Details</h4>
-          <div className="border rounded-lg overflow-hidden">
-            <table className="min-w-full">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="px-4 py-2 text-left font-medium text-gray-600">Size</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-600">Quantity</th>
-                </tr>
-              </thead>
-              <tbody>
-                {order.pallets.map((pallet, index) => (
-                  <tr key={index} className="border-t">
-                    <td className="px-4 py-2 text-gray-800">{pallet.size}</td>
-                    <td className="px-4 py-2 text-gray-800">{pallet.quantity}</td>
+        {order.items && order.items.length > 0 && (
+          <div>
+            <h4 className="font-semibold text-gray-800 mb-2">Pallet Details</h4>
+            <div className="border rounded-lg overflow-hidden">
+              <table className="min-w-full">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="px-4 py-2 text-left font-medium text-gray-600">Size</th>
+                    <th className="px-4 py-2 text-left font-medium text-gray-600">Quantity</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {order.items.map((pallet, index) => (
+                    <tr key={index} className="border-t">
+                      <td className="px-4 py-2 text-gray-800">{pallet.paletSize}</td>
+                      <td className="px-4 py-2 text-gray-800">{pallet.quantity}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* --- Inventory Details --- */}
         <div>
-          <h4 className="font-semibold text-gray-800 mb-2">Inventory Items</h4>
+          <h4 className="font-semibold text-gray-800 mb-2">Inventory Items in this Order</h4>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-3 p-4 bg-gray-50 rounded-lg">
-            {Object.entries(order.inventory).map(([key, value]) => (
-              <div key={key}>
-                <p className="font-medium text-gray-600 capitalize">{key.replace(/_/g, ' ')}</p>
-                <p className="text-gray-900">{value}</p>
+            {/* This map will now work correctly because inventoryFields is defined */}
+            {inventoryFields.map(field => order[field] > 0 && (
+              <div key={field}>
+                <p className="font-medium text-gray-600 capitalize">{field.replace(/_/g, ' ')}</p>
+                <p className="text-gray-900">{order[field]}</p>
               </div>
             ))}
           </div>
         </div>
 
         <div className="pt-4 flex justify-end">
-            <button onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
-                Close
-            </button>
+          <button onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Close</button>
         </div>
       </div>
     </Modal>
