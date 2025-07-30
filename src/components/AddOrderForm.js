@@ -24,11 +24,11 @@ const allInventoryItems = [
     { name: 'Plypatia', schemaKey: 'plypatia', unit: 'pcs' },
 ];
 
-// Helper function to get the current date in "YYYY-MM-DD" format for the input field.
+// Helper function to get the current date in "YYYY-MM-DD" format.
 const getTodayDateString = () => {
   const today = new Date();
   const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+  const month = String(today.getMonth() + 1).padStart(2, '0');
   const day = String(today.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
@@ -93,6 +93,17 @@ const AddOrderForm = ({ onSave, onClose }) => {
   // --- Form Submission Handler ---
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Filter to get only the valid, completed pallet rows
+    const validPalletRows = palletRows.filter(p => p.size && p.quantity && Number(p.quantity) > 0);
+
+    // Validation Check: Ensure at least one valid pallet row exists.
+    if (validPalletRows.length === 0) {
+      alert("Validation Error: You must add at least one pallet with a selected size and a quantity greater than 0.");
+      return; // Stop the submission
+    }
+
+    // If validation passes, build the data object
     const orderData = {
       source,
       sourceModel,
@@ -102,19 +113,18 @@ const AddOrderForm = ({ onSave, onClose }) => {
       date: orderDate,
       vehicle,
       vehicle_number: vehicleNumber,
-      items: palletRows
-        .filter(p => p.size && p.quantity > 0)
-        .map(({ size, quantity }) => ({
-          paletSize: size,
-          // Explicitly convert the quantity string from the form input into a number.
-          quantity: parseInt(quantity, 10)
-        })),
+      items: validPalletRows.map(({ size, quantity }) => ({
+        paletSize: size,
+        quantity: parseInt(quantity, 10)
+      })),
     };
+
     for (const item of allInventoryItems) {
       if (inventory[item.schemaKey] && inventory[item.schemaKey] > 0) {
         orderData[item.schemaKey] = parseFloat(inventory[item.schemaKey]);
       }
     }
+    
     onSave(orderData);
   };
 
@@ -125,7 +135,7 @@ const AddOrderForm = ({ onSave, onClose }) => {
     setPalletRows(palletRows.map(row => (row.id === id ? { ...row, [field]: value } : row)));
   };
   const handleInventoryChange = (schemaKey, value) => {
-    setInventory(prev => ({ ...prev, [schemaKey]: value }));
+    setInventory(prev => ({ ...prev, [schemaKey]: value.replace(/[^0-9]/g, '') }));
   };
   const handleSourceChange = (e) => {
     const [model, id] = e.target.value.split(':');
@@ -143,13 +153,7 @@ const AddOrderForm = ({ onSave, onClose }) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">Order Date</label>
-          <input
-            type="date"
-            value={orderDate}
-            onChange={(e) => setOrderDate(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-            required
-          />
+          <input type="date" value={orderDate} onChange={(e) => setOrderDate(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" required />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Source</label>
@@ -198,7 +202,7 @@ const AddOrderForm = ({ onSave, onClose }) => {
                 <option value="">Select Pallet Size</option>
                 {palletSizes.map(pallet => <option key={pallet._id} value={pallet.name}>{pallet.name}</option>)}
               </select>
-              <input type="number" placeholder="Quantity" value={row.quantity} onChange={(e) => handlePalletChange(row.id, 'quantity', e.target.value)} className="block w-48 px-3 py-2 border border-gray-300 rounded-md" />
+              <input type="text" pattern="[0-9]*" inputMode="numeric" placeholder="Quantity" value={row.quantity} onChange={(e) => handlePalletChange(row.id, 'quantity', e.target.value.replace(/[^0-9]/g, ''))} className="block w-48 px-3 py-2 border border-gray-300 rounded-md" />
               {palletRows.length > 1 && <button type="button" onClick={() => removePalletRow(row.id)} className="text-red-500 hover:text-red-700 p-1"><TrashIcon className="h-5 w-5" /></button>}
             </div>
           ))}
@@ -214,7 +218,7 @@ const AddOrderForm = ({ onSave, onClose }) => {
             <div key={item.schemaKey}>
               <label className="block text-sm font-medium text-gray-700">{item.name}</label>
               <div className="relative mt-1">
-                <input type="number" placeholder="0" onChange={(e) => handleInventoryChange(item.schemaKey, e.target.value)} className="block w-full px-3 py-2 border border-gray-300 rounded-md" />
+                <input type="text" pattern="[0-9]*" inputMode="numeric" placeholder="0" onChange={(e) => handleInventoryChange(item.schemaKey, e.target.value)} className="block w-full px-3 py-2 border border-gray-300 rounded-md" />
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"><span className="text-gray-500 text-sm">{item.unit}</span></div>
               </div>
             </div>

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PaginatedTable from '../components/PaginatedTable';
+import PalletTable from '../components/PalletTable'; // <-- Import the component
+
 
 // Dummy data for the pallet table, as this is not yet available from the backend
 const dummyPalletData = [
@@ -96,18 +98,8 @@ const PartyDetail = () => {
           </div>
         </div>
 
-        {/* --- This table still uses dummy data but could be connected to an API later --- */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="p-5 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-800">Pallet Details</h2>
-            <p className="mt-1 text-sm text-gray-500">Pallet usage summary for this party.</p>
-          </div>
-          <PaginatedTable 
-            columns={palletTableColumns} 
-            data={dummyPalletData}
-            itemsPerPage={4}
-          />
-        </div>
+        <PalletTable partyId={id} />
+
       </div>
     </div>
   );
