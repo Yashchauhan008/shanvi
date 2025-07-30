@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { EyeIcon } from '@heroicons/react/24/outline';
 import OrderDetailModal from '../components/OrderDetailModal';
-import OrderFilters from '../components/OrderFilters'; // It now imports the simplified version
+import OrderFilters from '../components/OrderFilters'; // This now imports the updated version
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -21,7 +21,7 @@ const Orders = () => {
       const params = new URLSearchParams({
         page: currentPage,
         limit: 100,
-        ...filters,
+        ...filters, // This automatically includes the new 'source' filter if it exists
       });
       const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/orders?${params.toString()}`;
       const response = await axios.get(apiUrl);

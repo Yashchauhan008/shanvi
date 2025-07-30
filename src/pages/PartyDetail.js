@@ -1,43 +1,35 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import PaginatedTable from '../components/PaginatedTable';
-import PalletTable from '../components/PalletTable'; // <-- Import the component
+import PalletTable from '../components/PalletTable';
+import TransactionHistory from '../components/TransactionHistory';
 
-
-// Dummy data for the pallet table, as this is not yet available from the backend
-const dummyPalletData = [
-    { id: 1, size: '200x200', totalOut: 50, totalUsed: 30, remains: 20 },
-    { id: 2, size: '1200x600', totalOut: 80, totalUsed: 75, remains: 5 },
-];
+// Helper to get current month's start/end dates
+const getMonthStartEnd = () => {
+  const now = new Date();
+  const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+  const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+  return { startDate, endDate };
+};
 
 const PartyDetail = () => {
-  const { id } = useParams(); // Get the party ID from the URL
+  const { id } = useParams();
   const navigate = useNavigate();
-
   const [party, setParty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // --- Define columns for the pallet table (this part is still using dummy data) ---
-  const palletTableColumns = [
-    { Header: 'Pallet Size', accessor: 'size' },
-    { Header: 'Total Out', accessor: 'totalOut' },
-    { Header: 'Total Used', accessor: 'totalUsed' },
-    { 
-      Header: 'Remains', 
-      accessor: 'remains',
-      Cell: (row) => <span className="font-semibold text-indigo-600">{row.remains}</span>
-    },
-  ];
+  // State for the shared date filters now lives in the parent
+  const [dateFilters, setDateFilters] = useState({
+    fromDate: getMonthStartEnd().startDate,
+    toDate: getMonthStartEnd().endDate,
+  });
 
-  // --- Fetch the specific party's details from the API ---
   const fetchPartyDetails = useCallback(async () => {
     try {
       setLoading(true);
       const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/parties/${id}`;
       const response = await axios.get(apiUrl);
-      // The backend populates 'factory_ids' with factory objects, which is perfect
       setParty(response.data);
     } catch (err) {
       setError('Failed to fetch party details.');
@@ -51,6 +43,11 @@ const PartyDetail = () => {
     fetchPartyDetails();
   }, [fetchPartyDetails]);
 
+  const handleDateChange = (e) => {
+    const { name, value } = e.target;
+    setDateFilters(prev => ({ ...prev, [name]: value }));
+  };
+
   if (loading) {
     return <div className="container mx-auto p-8 text-center">Loading party details...</div>;
   }
@@ -59,24 +56,20 @@ const PartyDetail = () => {
     return (
       <div className="container mx-auto p-8 text-center">
         <h1 className="text-2xl font-bold text-red-600">{error || 'Party Not Found'}</h1>
-        <Link to="/parties" className="mt-6 inline-block text-indigo-600 hover:text-indigo-800 font-semibold">
-          &larr; Back to all parties
-        </Link>
+        <Link to="/parties" className="mt-6 inline-block text-indigo-600 hover:text-indigo-800 font-semibold">&larr; Back to all parties</Link>
       </div>
     );
   }
 
-  // The associated factories are now inside party.factory_ids
   const partyFactories = party.factory_ids || [];
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
       <div className="mb-8">
-        <Link to="/parties" className="text-sm text-indigo-600 hover:text-indigo-800 font-semibold">
-          &larr; Back to Parties
-        </Link>
+        <Link to="/parties" className="text-sm text-indigo-600 hover:text-indigo-800 font-semibold">&larr; Back to Parties</Link>
         <h1 className="text-4xl font-bold text-gray-800 mt-2">{party.name}</h1>
       </div>
+
 
       <div className="flex flex-col gap-8">
         <div className="bg-white rounded-xl shadow-lg p-6">
@@ -84,11 +77,7 @@ const PartyDetail = () => {
           <div className="mt-4 flex flex-wrap gap-3">
             {partyFactories.length > 0 ? (
               partyFactories.map(factory => (
-                <button
-                  key={factory._id} // Use backend's _id
-                  onClick={() => navigate(`/factory/${factory._id}`)}
-                  className="px-4 py-2 text-sm font-medium text-teal-800 bg-teal-100 rounded-full hover:bg-teal-200"
-                >
+                <button key={factory._id} onClick={() => navigate(`/factory/${factory._id}`)} className="px-4 py-2 text-sm font-medium text-teal-800 bg-teal-100 rounded-full hover:bg-teal-200">
                   {factory.name}
                 </button>
               ))
@@ -98,8 +87,23 @@ const PartyDetail = () => {
           </div>
         </div>
 
-        <PalletTable partyId={id} />
-
+        {/* --- Shared Filter Bar --- */}
+      <div className="p-4 bg-white rounded-lg shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">From Date</label>
+            <input type="date" name="fromDate" value={dateFilters.fromDate} onChange={handleDateChange} className="mt-1 w-full px-3 py-2 border rounded-md" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">To Date</label>
+            <input type="date" name="toDate" value={dateFilters.toDate} onChange={handleDateChange} className="mt-1 w-full px-3 py-2 border rounded-md" />
+          </div>
+        </div>
+      </div>
+        
+        {/* Pass the shared dates down to both components */}
+        <PalletTable partyId={id} fromDate={dateFilters.fromDate} toDate={dateFilters.toDate} />
+        <TransactionHistory partyId={id} fromDate={dateFilters.fromDate} toDate={dateFilters.toDate} />
       </div>
     </div>
   );

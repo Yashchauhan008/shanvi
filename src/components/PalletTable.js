@@ -1,64 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-// Helper functions to get the start and end of the current month
-const getMonthStartEnd = () => {
-  const now = new Date();
-  const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-  const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
-  return { startDate, endDate };
-};
-
-const PalletTable = () => {
+// The component now accepts fromDate and toDate from its parent
+const PalletTable = ({ partyId, factoryId, fromDate, toDate }) => {
   const [pallets, setPallets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  // State for filter dropdowns
-  const [parties, setParties] = useState([]);
-  const [factories, setFactories] = useState([]);
-  const [associateCompanies, setAssociateCompanies] = useState([]);
 
-  // State to hold the current filter values
-  const [filters, setFilters] = useState({
-    party_id: '',
-    factory_id: '',
-    associate_company_id: '',
-    fromDate: getMonthStartEnd().startDate,
-    toDate: getMonthStartEnd().endDate,
-  });
-
-  // --- 1. Fetch data for the filter dropdowns ---
-  useEffect(() => {
-    const fetchFilterData = async () => {
-      try {
-        const [partiesRes, factoriesRes, associateCompaniesRes] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_API_BASE_URL}/parties/list`),
-          axios.get(`${process.env.REACT_APP_API_BASE_URL}/factories`),
-          axios.get(`${process.env.REACT_APP_API_BASE_URL}/associate-companies`),
-        ]);
-        setParties(partiesRes.data);
-        setFactories(factoriesRes.data);
-        setAssociateCompanies(associateCompaniesRes.data);
-      } catch (err) {
-        console.error("Failed to load filter data", err);
-      }
-    };
-    fetchFilterData();
-  }, []);
-
-  // --- 2. Main function to fetch pallet statistics based on filters ---
   const fetchPalletStats = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const params = new URLSearchParams();
-      // Append only active filters to the request
-      for (const key in filters) {
-        if (filters[key]) {
-          params.append(key, filters[key]);
-        }
-      }
+      // Add context-aware filters from props
+      if (partyId) params.append('party_id', partyId);
+      if (factoryId) params.append('factory_id', factoryId);
+      // Add date filters from props
+      if (fromDate) params.append('fromDate', fromDate);
+      if (toDate) params.append('toDate', toDate);
       
       const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/orders/stats/pallets?${params.toString()}`;
       const response = await axios.get(apiUrl);
@@ -69,23 +28,12 @@ const PalletTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [partyId, factoryId, fromDate, toDate]); // Dependency array includes the new date props
 
-  // --- 3. useEffect to trigger the fetch when the component mounts ---
   useEffect(() => {
     fetchPalletStats();
-  }, []); // Run only once on initial load with default (current month) filters
+  }, [fetchPalletStats]);
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleApplyFilters = () => {
-    fetchPalletStats(); // Manually trigger a re-fetch with the current filter state
-  };
-
-  // --- 4. Optional: Calculate an advanced outcome ---
   const getMostUsedPallet = () => {
     if (pallets.length === 0) return 'N/A';
     const mostUsed = pallets.reduce((max, p) => p.totalUsed > max.totalUsed ? p : max, pallets[0]);
@@ -96,32 +44,15 @@ const PalletTable = () => {
     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
       <div className="p-5 border-b border-gray-200">
         <h2 className="text-xl font-bold text-gray-800">Pallet Usage Report</h2>
-        <p className="mt-1 text-sm text-gray-500">Dynamic summary of pallet movements.</p>
+        <p className="mt-1 text-sm text-gray-500">
+          Showing data from <span className="font-semibold">{fromDate}</span> to <span className="font-semibold">{toDate}</span>.
+        </p>
       </div>
-
-      {/* --- Filter Section --- */}
-      <div className="p-4 bg-gray-50 border-b">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <input type="date" name="fromDate" value={filters.fromDate} onChange={handleFilterChange} className="w-full px-3 py-2 border rounded-md" />
-          <input type="date" name="toDate" value={filters.toDate} onChange={handleFilterChange} className="w-full px-3 py-2 border rounded-md" />
-          <select name="party_id" value={filters.party_id} onChange={handleFilterChange} className="w-full px-3 py-2 border rounded-md">
-            <option value="">All Parties</option>
-            {parties.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
-          </select>
-          <select name="associate_company_id" value={filters.associate_company_id} onChange={handleFilterChange} className="w-full px-3 py-2 border rounded-md">
-            <option value="">All Associates</option>
-            {associateCompanies.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
-          </select>
-          <button onClick={handleApplyFilters} className="w-full py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Apply Filters</button>
-        </div>
-      </div>
-
-      {/* --- Optional Insights Section --- */}
-      <div className="p-4 bg-indigo-50 text-sm">
+      
+      <div className="p-4 bg-indigo-50 text-sm border-b">
         <strong>Insight:</strong> Most frequently used pallet in this period is <span className="font-bold text-indigo-700">{getMostUsedPallet()}</span>.
       </div>
 
-      {/* --- Data Table --- */}
       <div className="overflow-x-auto">
         {loading && <div className="p-6 text-center text-gray-500">Loading pallet details...</div>}
         {error && <div className="p-6 text-center text-red-500">{error}</div>}
