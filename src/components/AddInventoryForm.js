@@ -89,20 +89,11 @@ const AddInventoryForm = ({ onSave, onClose }) => {
       </div>
 
       <div className="pt-4 flex justify-end space-x-3 border-t">
-        <button 
-          type="button" 
-          onClick={onClose} 
-          className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-          disabled={isSubmitting}
-        >
+        <button type="button" onClick={onClose} disabled={isSubmitting} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50">
           Cancel
         </button>
-        <button 
-          type="submit" 
-          className="px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700 disabled:bg-green-400"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Saving...' : 'Add to Stock'}
+        <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
+          {isSubmitting ? 'Adding...' : 'Add to Stock'}
         </button>
       </div>
     </form>
