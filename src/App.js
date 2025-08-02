@@ -17,8 +17,12 @@ import FactoryDetail from './pages/FactoryDetail';
 import Orders from './pages/Orders'; // <-- Import the new Orders page
 import MasterAdmin from './pages/MasterAdmin';
 
+import { ThemeProvider } from './context/ThemeContext'; // ✅ Import the ThemeProvider
+
+
 function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <Router>
         <Routes>
@@ -43,6 +47,7 @@ function App() {
         </Routes>
       </Router>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
 
