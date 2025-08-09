@@ -18,7 +18,7 @@ const TransactionHistory = ({ partyId, factoryId, fromDate, toDate }) => {
     setLoading(true);
     setError(null);
     try {
-      const params = new URLSearchParams({ page: currentPage, limit: 5 });
+      const params = new URLSearchParams({ page: currentPage, limit: 20 });
       if (partyId) params.append('party_id', partyId);
       if (factoryId) params.append('factory_id', factoryId);
       if (fromDate) params.append('startDate', fromDate);

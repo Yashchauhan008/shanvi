@@ -49,13 +49,13 @@
 //   };
 
 //   if (loading) {
-//     return <div className="container mx-auto p-8 text-center">Loading factory details...</div>;
+//     return <div className="container mx-auto p-8 text-center text-gray-500 dark:text-gray-400">Loading factory details...</div>;
 //   }
 
 //   if (error || !factory) {
 //     return (
 //       <div className="container mx-auto p-8 text-center">
-//         <h1 className="text-2xl font-bold text-red-600">{error || 'Factory Not Found'}</h1>
+//         <h1 className="text-2xl font-bold text-red-500">{error || 'Factory Not Found'}</h1>
 //         <Link to="/factories" className="mt-6 inline-block text-teal-600 hover:text-teal-800 font-semibold">&larr; Back to all factories</Link>
 //       </div>
 //     );
@@ -66,35 +66,38 @@
 //   return (
 //     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
 //       <div className="mb-8">
-//         <Link to="/factories" className="text-sm text-teal-600 hover:text-teal-800 font-semibold">&larr; Back to Factories</Link>
-//         <h1 className="text-4xl font-bold text-gray-800 mt-2">{factory.name}</h1>
+//         {/* ✅ Add dark mode classes */}
+//         <Link to="/factories" className="text-sm text-teal-600 dark:text-teal-400 hover:text-teal-800 font-semibold">&larr; Back to Factories</Link>
+//         <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mt-2">{factory.name}</h1>
 //       </div>
 
 
 //       <div className="flex flex-col gap-8">
-//         <div className="bg-white rounded-xl shadow-lg p-6">
-//           <h2 className="text-xl font-bold text-gray-800">Parent Party</h2>
+//         {/* ✅ Add dark mode classes */}
+//         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+//           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Parent Party</h2>
 //           <div className="mt-4">
 //             {parentParty ? (
-//               <button onClick={() => navigate(`/party/${parentParty._id}`)} className="px-4 py-2 text-sm font-medium text-indigo-800 bg-indigo-100 rounded-full hover:bg-indigo-200">
+//               <button onClick={() => navigate(`/party/${parentParty._id}`)} className="px-4 py-2 text-sm font-medium text-indigo-800 dark:text-indigo-200 bg-indigo-100 dark:bg-indigo-900/50 rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900">
 //                 {parentParty.name}
 //               </button>
 //             ) : (
-//               <p className="text-gray-500">No parent party assigned.</p>
+//               <p className="text-gray-500 dark:text-gray-400">No parent party assigned.</p>
 //             )}
 //           </div>
 //         </div>
 
 //       {/* --- Shared Filter Bar --- */}
-//       <div className="p-4 bg-white rounded-lg shadow-sm">
+//       {/* ✅ Add dark mode classes */}
+//       <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
 //         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 //           <div>
-//             <label className="block text-sm font-medium text-gray-700">From Date</label>
-//             <input type="date" name="fromDate" value={dateFilters.fromDate} onChange={handleDateChange} className="mt-1 w-full px-3 py-2 border rounded-md" />
+//             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">From Date</label>
+//             <input type="date" name="fromDate" value={dateFilters.fromDate} onChange={handleDateChange} className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
 //           </div>
 //           <div>
-//             <label className="block text-sm font-medium text-gray-700">To Date</label>
-//             <input type="date" name="toDate" value={dateFilters.toDate} onChange={handleDateChange} className="mt-1 w-full px-3 py-2 border rounded-md" />
+//             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">To Date</label>
+//             <input type="date" name="toDate" value={dateFilters.toDate} onChange={handleDateChange} className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
 //           </div>
 //         </div>
 //       </div>
@@ -113,6 +116,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PalletTable from '../components/PalletTable';
 import TransactionHistory from '../components/TransactionHistory';
+// ✅ 1. Import the reusable DateRangeFilter component
+import DateRangeFilter from '../components/DateRangeFilter';
 
 // Helper to get current month's start/end dates
 const getMonthStartEnd = () => {
@@ -153,6 +158,7 @@ const FactoryDetail = () => {
     fetchFactoryDetails();
   }, [fetchFactoryDetails]);
 
+  // ✅ 2. The handler function is now simplified
   const handleDateChange = (e) => {
     const { name, value } = e.target;
     setDateFilters(prev => ({ ...prev, [name]: value }));
@@ -176,14 +182,12 @@ const FactoryDetail = () => {
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
       <div className="mb-8">
-        {/* ✅ Add dark mode classes */}
         <Link to="/factories" className="text-sm text-teal-600 dark:text-teal-400 hover:text-teal-800 font-semibold">&larr; Back to Factories</Link>
         <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mt-2">{factory.name}</h1>
       </div>
 
 
       <div className="flex flex-col gap-8">
-        {/* ✅ Add dark mode classes */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Parent Party</h2>
           <div className="mt-4">
@@ -197,20 +201,12 @@ const FactoryDetail = () => {
           </div>
         </div>
 
-      {/* --- Shared Filter Bar --- */}
-      {/* ✅ Add dark mode classes */}
-      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">From Date</label>
-            <input type="date" name="fromDate" value={dateFilters.fromDate} onChange={handleDateChange} className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">To Date</label>
-            <input type="date" name="toDate" value={dateFilters.toDate} onChange={handleDateChange} className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-          </div>
-        </div>
-      </div>
+        {/* ✅ 3. Use the reusable DateRangeFilter component */}
+        <DateRangeFilter 
+          fromDate={dateFilters.fromDate}
+          toDate={dateFilters.toDate}
+          onDateChange={handleDateChange}
+        />
 
         {/* Pass the shared dates down to both components */}
         <PalletTable factoryId={id} fromDate={dateFilters.fromDate} toDate={dateFilters.toDate} />
