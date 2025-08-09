@@ -297,7 +297,7 @@ const TransactionHistory = ({ partyId, factoryId, fromDate, toDate }) => {
           </div>
         </div>
       )}
-      <OrderDetailModal isOpen={isModalOpen} onClose={closeModal} order={selectedOrder} />
+      <OrderDetailModal isOpen={isModalOpen} onClose={closeModal} order={selectedOrder} onGenerateInvoice={handleGenerateInvoice} />
     </div>
   );
 };

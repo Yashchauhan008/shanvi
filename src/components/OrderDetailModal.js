@@ -92,11 +92,12 @@
 
 import React from 'react';
 import Modal from './Modal';
+import { DocumentTextIcon } from '@heroicons/react/24/outline';
 
-const OrderDetailModal = ({ isOpen, onClose, order }) => {
+
+const OrderDetailModal = ({ isOpen, onClose, order, onGenerateInvoice }) => {
   if (!order) return null;
 
-  // Helper to get the name from the populated source object
   const getSourceName = (source) => {
     if (!source) return 'N/A';
     return source.name || source.username || 'N/A';
@@ -161,10 +162,20 @@ const OrderDetailModal = ({ isOpen, onClose, order }) => {
           </div>
         </div>
 
-        <div className="pt-4 flex justify-end">
-            <button onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-200 dark:bg-gray-600 dark:text-gray-100 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500">
-                Close
-            </button>
+        <div className="pt-4 flex justify-end items-center space-x-3 border-t border-gray-200 dark:border-gray-700">
+          <button
+            onClick={() => onGenerateInvoice(order._id)}
+            className="flex items-center gap-2 px-4 py-2 text-white bg-teal-600 rounded-md hover:bg-teal-700"
+          >
+            <DocumentTextIcon className="h-5 w-5" />
+            Generate Invoice
+          </button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-gray-700 bg-gray-200 dark:bg-gray-600 dark:text-gray-100 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500"
+          >
+            Close
+          </button>
         </div>
       </div>
     </Modal>

@@ -7,14 +7,14 @@
 
 // const Factories = () => {
 //   const [factories, setFactories] = useState([]);
-//   const [partyList, setPartyList] = useState([]); // For the form dropdown
+//   const [partyList, setPartyList] = useState([]);
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState(null);
 //   const [isModalOpen, setIsModalOpen] = useState(false);
 //   const [factoryToEdit, setFactoryToEdit] = useState(null);
 
 //   const factoriesApiUrl = `${process.env.REACT_APP_API_BASE_URL}/factories`;
-//   const partyListApiUrl = `${process.env.REACT_APP_API_BASE_URL}/parties`;
+//   const partyListApiUrl = `${process.env.REACT_APP_API_BASE_URL}/parties/list`;
 
 //   const fetchFactories = useCallback(async () => {
 //     try {
@@ -79,7 +79,7 @@
 //     }
 //   };
 
-//   if (loading) return <div className="p-8 text-center">Loading factories...</div>;
+//   if (loading) return <div className="p-8 text-center text-gray-500 dark:text-gray-400">Loading factories...</div>;
 //   if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
 
 //   return (
@@ -87,26 +87,35 @@
 //       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
 //         <div className="flex justify-between items-center mb-8">
 //           <div>
-//             <h1 className="text-3xl font-bold text-gray-800">Factories</h1>
-//             <p className="mt-1 text-md text-gray-500">Manage your factory locations.</p>
+//             {/* ✅ Add dark mode classes to header text */}
+//             <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Factories</h1>
+//             <p className="mt-1 text-md text-gray-500 dark:text-gray-400">Manage your factory locations.</p>
 //           </div>
-//           <button onClick={handleAddFactory} className="flex items-center gap-2 px-4 py-2 text-white bg-teal-600 rounded-md hover:bg-teal-700">
+//           <button
+//             onClick={handleAddFactory}
+//             className="flex items-center gap-2 px-4 py-2 text-white bg-teal-600 rounded-md hover:bg-teal-700"
+//           >
 //             <PlusIcon className="h-5 w-5" /> Add Factory
 //           </button>
 //         </div>
+
 //         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 //           {factories.map((factory) => (
-//             <div key={factory._id} className="bg-white rounded-xl shadow-md p-6 flex flex-col justify-between">
+//             // ✅ Add dark mode classes to the card container
+//             <div key={factory._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 flex flex-col justify-between">
 //               <div>
 //                 <Link to={`/factory/${factory._id}`} className="block">
-//                   <h2 className="text-xl font-bold text-teal-600 hover:underline">{factory.name}</h2>
+//                   {/* ✅ Add dark mode classes to the card title */}
+//                   <h2 className="text-xl font-bold text-teal-600 dark:text-teal-400 hover:underline">{factory.name}</h2>
 //                 </Link>
-//                 <p className="text-sm text-gray-500 mt-2">
-//                   Owned by: <span className="font-semibold">{factory.party_id?.name || 'N/A'}</span>
+//                 {/* ✅ Add dark mode classes to the card text */}
+//                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+//                   Owned by: <span className="font-semibold text-gray-700 dark:text-gray-200">{factory.party_id?.name || 'N/A'}</span>
 //                 </p>
 //               </div>
 //               <div className="mt-4 flex justify-end">
-//                 <button onClick={() => handleEditFactory(factory)} className="text-gray-400 hover:text-teal-600">
+//                 {/* ✅ Add dark mode classes to the edit button */}
+//                 <button onClick={() => handleEditFactory(factory)} className="text-gray-400 hover:text-teal-600 dark:hover:text-teal-400">
 //                   <PencilIcon className="h-5 w-5" />
 //                 </button>
 //               </div>
@@ -114,6 +123,7 @@
 //           ))}
 //         </div>
 //       </div>
+
 //       <Modal isOpen={isModalOpen} onClose={closeModal} title={factoryToEdit ? 'Edit Factory' : 'Add New Factory'}>
 //         <FactoryForm onSave={handleSaveFactory} factoryToEdit={factoryToEdit} parties={partyList} onClose={closeModal} />
 //       </Modal>
@@ -122,6 +132,9 @@
 // };
 
 // export default Factories;
+
+
+// src/pages/Factories.js
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
@@ -137,6 +150,8 @@ const Factories = () => {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [factoryToEdit, setFactoryToEdit] = useState(null);
+  // ✅ 1. Add state for the search term
+  const [searchTerm, setSearchTerm] = useState('');
 
   const factoriesApiUrl = `${process.env.REACT_APP_API_BASE_URL}/factories`;
   const partyListApiUrl = `${process.env.REACT_APP_API_BASE_URL}/parties/list`;
@@ -204,6 +219,11 @@ const Factories = () => {
     }
   };
 
+  // ✅ 2. Filter factories based on the search term
+  const filteredFactories = factories.filter(factory =>
+    factory.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (loading) return <div className="p-8 text-center text-gray-500 dark:text-gray-400">Loading factories...</div>;
   if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
 
@@ -212,7 +232,6 @@ const Factories = () => {
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
         <div className="flex justify-between items-center mb-8">
           <div>
-            {/* ✅ Add dark mode classes to header text */}
             <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Factories</h1>
             <p className="mt-1 text-md text-gray-500 dark:text-gray-400">Manage your factory locations.</p>
           </div>
@@ -224,22 +243,30 @@ const Factories = () => {
           </button>
         </div>
 
+        {/* ✅ 3. Add the search input field */}
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search for a factory..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full max-w-sm px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          />
+        </div>
+
+        {/* ✅ 4. Map over the filteredFactories array */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {factories.map((factory) => (
-            // ✅ Add dark mode classes to the card container
+          {filteredFactories.map((factory) => (
             <div key={factory._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 flex flex-col justify-between">
               <div>
                 <Link to={`/factory/${factory._id}`} className="block">
-                  {/* ✅ Add dark mode classes to the card title */}
                   <h2 className="text-xl font-bold text-teal-600 dark:text-teal-400 hover:underline">{factory.name}</h2>
                 </Link>
-                {/* ✅ Add dark mode classes to the card text */}
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                   Owned by: <span className="font-semibold text-gray-700 dark:text-gray-200">{factory.party_id?.name || 'N/A'}</span>
                 </p>
               </div>
               <div className="mt-4 flex justify-end">
-                {/* ✅ Add dark mode classes to the edit button */}
                 <button onClick={() => handleEditFactory(factory)} className="text-gray-400 hover:text-teal-600 dark:hover:text-teal-400">
                   <PencilIcon className="h-5 w-5" />
                 </button>
