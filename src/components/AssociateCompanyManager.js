@@ -216,7 +216,7 @@ const AssociateCompanyManager = () => {
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
         <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
           <div>
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Associate Companies</h2>

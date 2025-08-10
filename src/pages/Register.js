@@ -3,6 +3,8 @@
 // import { useNavigate, Link } from 'react-router-dom';
 
 // const Register = () => {
+//   const [productionHouseName, setProductionHouseName] = useState('');
+//   const [username, setUsername] = useState('');
 //   const [email, setEmail] = useState('');
 //   const [password, setPassword] = useState('');
 //   const [error, setError] = useState('');
@@ -11,29 +13,84 @@
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
 //     setError('');
+
+//     // Get the base URL from the same helper function or directly from process.env
+//     const apiUrl = `${process.env.REACT_APP_API_BASE_URL || 'http://localhost:5500/api'}/production-house/register`;
+
 //     try {
-//       await axios.post('http://localhost:5000/api/auth/register', { email, password } );
+//       await axios.post(apiUrl, {
+//         productionHouseName,
+//         username,
+//         email,
+//         password,
+//       } );
+      
+//       // On success, redirect to the login page
 //       navigate('/login');
+
 //     } catch (err) {
-//       setError('Failed to register. User may already exist.');
-//       console.error(err);
+//       // Display the actual error message from the backend API
+//       const errorMessage = err.response?.data?.message || 'Failed to register. Please try again.';
+//       setError(errorMessage);
+//       console.error('Registration Error:', err);
 //     }
 //   };
 
 //   return (
-//     <div className="flex items-center justify-center h-screen bg-gray-100">
-//       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+//     <div className="flex items-center justify-center min-h-screen bg-gray-100">
+//       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md my-8">
 //         <h2 className="text-2xl font-bold text-center text-gray-900">Create a new account</h2>
 //         <form onSubmit={handleSubmit} className="space-y-6">
 //           {error && <p className="text-sm text-center text-red-500">{error}</p>}
+          
+//           <div>
+//             <label htmlFor="productionHouseName" className="block text-sm font-medium text-gray-700">Production House Name</label>
+//             <input 
+//               id="productionHouseName" 
+//               type="text" 
+//               value={productionHouseName} 
+//               onChange={(e) => setProductionHouseName(e.target.value)} 
+//               className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
+//               required 
+//             />
+//           </div>
+
+//           <div>
+//             <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
+//             <input 
+//               id="username" 
+//               type="text" 
+//               value={username} 
+//               onChange={(e) => setUsername(e.target.value)} 
+//               className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
+//               required 
+//             />
+//           </div>
+
 //           <div>
 //             <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
-//             <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required />
+//             <input 
+//               id="email" 
+//               type="email" 
+//               value={email} 
+//               onChange={(e) => setEmail(e.target.value)} 
+//               className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
+//               required 
+//             />
 //           </div>
+
 //           <div>
 //             <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-//             <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required />
+//             <input 
+//               id="password" 
+//               type="password" 
+//               value={password} 
+//               onChange={(e) => setPassword(e.target.value)} 
+//               className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
+//               required 
+//             />
 //           </div>
+
 //           <button type="submit" className="w-full py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 //             Register
 //           </button>
@@ -50,9 +107,18 @@
 // };
 
 // export default Register;
+
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import { ArrowPathIcon } from '@heroicons/react/24/solid';
+
+// A simple SVG logo component. You can replace this with your actual logo.
+const ShanviLogo = () => (
+  <svg className="w-12 h-12 mx-auto text-indigo-600 dark:text-indigo-500" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5-10-5-10 5z" />
+  </svg>
+);
 
 const Register = () => {
   const [productionHouseName, setProductionHouseName] = useState('');
@@ -60,96 +126,77 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
-    // Get the base URL from the same helper function or directly from process.env
-    const apiUrl = `${process.env.REACT_APP_API_BASE_URL || 'http://localhost:5500/api'}/production-house/register`;
-
+    setLoading(true);
+    const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/production-house/register`;
     try {
-      await axios.post(apiUrl, {
-        productionHouseName,
-        username,
-        email,
-        password,
-      } );
-      
-      // On success, redirect to the login page
+      await axios.post(apiUrl, { productionHouseName, username, email, password });
+      alert("Registration successful! Please log in.");
       navigate('/login');
-
     } catch (err) {
-      // Display the actual error message from the backend API
       const errorMessage = err.response?.data?.message || 'Failed to register. Please try again.';
       setError(errorMessage);
-      console.error('Registration Error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md my-8">
-        <h2 className="text-2xl font-bold text-center text-gray-900">Create a new account</h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {error && <p className="text-sm text-center text-red-500">{error}</p>}
-          
-          <div>
-            <label htmlFor="productionHouseName" className="block text-sm font-medium text-gray-700">Production House Name</label>
-            <input 
-              id="productionHouseName" 
-              type="text" 
-              value={productionHouseName} 
-              onChange={(e) => setProductionHouseName(e.target.value)} 
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
-              required 
-            />
-          </div>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 my-8">
+        {/* Header with Logo and Title */}
+        <div className="text-center">
+          <ShanviLogo />
+          <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+            Shanvi Enterprise
+          </h1>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            Create a new account
+          </p>
+        </div>
 
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="p-3 text-center text-sm text-red-800 bg-red-100 dark:text-red-200 dark:bg-red-900/30 rounded-lg">
+              {error}
+            </div>
+          )}
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
-            <input 
-              id="username" 
-              type="text" 
-              value={username} 
-              onChange={(e) => setUsername(e.target.value)} 
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
-              required 
-            />
+            <label htmlFor="productionHouseName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Production House Name</label>
+            <input id="productionHouseName" type="text" value={productionHouseName} onChange={(e) => setProductionHouseName(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" required />
           </div>
-
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
-            <input 
-              id="email" 
-              type="email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
-              required 
-            />
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+            <input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" required />
           </div>
-
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-            <input 
-              id="password" 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
-              required 
-            />
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email address</label>
+            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" required />
           </div>
-
-          <button type="submit" className="w-full py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            Register
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" required />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex justify-center py-2 px-4 mt-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg shadow-sm hover:bg-indigo-700 disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+          >
+            {loading ? (
+              <ArrowPathIcon className="h-5 w-5 animate-spin" />
+            ) : (
+              'Register'
+            )}
           </button>
         </form>
-        <p className="text-sm text-center text-gray-600">
+        <p className="text-sm text-center text-gray-600 dark:text-gray-400">
           Already have an account?{' '}
-          <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+          <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
             Sign in
           </Link>
         </p>

@@ -185,8 +185,8 @@ const Dashboard = () => {
           <PalletTable palletData={palletStats} loading={palletLoading} />
 
           {/* Inventory Status Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-            <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+          <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
               <div>
                 <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Inventory Status</h2>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Current stock levels for all packaging items.</p>
