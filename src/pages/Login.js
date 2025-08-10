@@ -74,12 +74,13 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowPathIcon } from '@heroicons/react/24/solid';
+import logo from '../shanviLogo.png'
 
 // A simple SVG logo component. You can replace this with your actual logo.
 const ShanviLogo = () => (
-  <svg className="w-12 h-12 mx-auto text-indigo-600 dark:text-indigo-500" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5-10-5-10 5z" />
-  </svg>
+  <div className='relative h-16 w-full flex justify-center'>
+  <img src={logo} className='h-16 w-16 object-cover'/>
+  </div>
 );
 
 const Login = () => {
