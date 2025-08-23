@@ -1,15 +1,17 @@
 
 // import React, { useState, useEffect, useCallback } from 'react';
 // import axios from 'axios';
-// // ✅ 1. Import the TrashIcon
 // import { EyeIcon, DocumentTextIcon, TrashIcon } from '@heroicons/react/24/outline';
 // import { generateInvoicePdf } from '../services/invoiceGenerator';
 // import OrderDetailModal from '../components/OrderDetailModal';
 // import OrderFilters from '../components/OrderFilters';
 // import PaginatedTable from '../components/PaginatedTable';
-// import { useAuth } from '../context/AuthContext'; // Import the context hook
+// import { useAuth } from '../context/AuthContext';
+// // ✅ 1. Import the new, separate search component
+// import OrderSearch from '../components/OrderSearch';
 
 // const Orders = () => {
+//   // --- ALL YOUR EXISTING STATE AND LOGIC REMAINS UNTOUCHED ---
 //   const [orders, setOrders] = useState([]);
 //   const [apiPagination, setApiPagination] = useState(null);
 //   const [filters, setFilters] = useState({});
@@ -19,8 +21,7 @@
 //   const [selectedOrder, setSelectedOrder] = useState(null);
 //   const [isModalOpen, setIsModalOpen] = useState(false);
 //   const [isGenerating, setIsGenerating] = useState(false);
-
-//   const { isDeleteEnabled } = useAuth(); // Get the state from the context
+//   const { isDeleteEnabled } = useAuth();
 
 //   const fetchOrders = useCallback(async () => {
 //     setLoading(true);
@@ -62,15 +63,12 @@
 //     }
 //   };
 
-//   // ✅ 2. Add the handler function to delete an order
 //   const handleDeleteOrder = async (orderId) => {
-//     // Confirm with the user before deleting
 //     if (window.confirm("Are you sure you want to delete this order? This action cannot be undone.")) {
 //       try {
 //         const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/orders/${orderId}`;
 //         await axios.delete(apiUrl);
 //         alert("Order deleted successfully!");
-//         // Refresh the order list to remove the deleted item from view
 //         fetchOrders();
 //       } catch (err) {
 //         alert(`Error: ${err.response?.data?.message || "Failed to delete the order."}`);
@@ -89,6 +87,17 @@
 //     setSelectedOrder(null);
 //   };
 
+//   // ✅ 2. Add two small handler functions to connect the search component to the modal
+//   const handleSearchResult = (foundOrder) => {
+//     setSelectedOrder(foundOrder);
+//     setIsModalOpen(true);
+//   };
+
+//   const handleSearchError = (errorMessage) => {
+//     alert(`Error: ${errorMessage}`);
+//   };
+
+//   // ✅ This is the full, restored columns definition for your table.
 //   const columns = [
 //     { Header: 'Date', accessor: 'date', Cell: (row) => new Date(row.date).toLocaleDateString() },
 //     { Header: 'ID', accessor: 'customOrderId' },
@@ -117,11 +126,10 @@
 //           <button onClick={() => handleGenerateInvoice(row._id)} className="text-gray-500 hover:text-indigo-400" title="Print Invoice">
 //             <DocumentTextIcon className="h-5 w-5" />
 //           </button>
-//           {/* ✅ 3. Add the new delete button to the actions column */}
 //           {isDeleteEnabled && (
-//             <button 
-//               onClick={() => handleDeleteOrder(row._id)} 
-//               className="text-red-500 hover:text-red-700" 
+//             <button
+//               onClick={() => handleDeleteOrder(row._id)}
+//               className="text-red-500 hover:text-red-700"
 //               title="Delete Order"
 //             >
 //               <TrashIcon className="h-5 w-5" />
@@ -140,6 +148,13 @@
 //           <p className="mt-1 text-md text-gray-500 dark:text-gray-400">A log of all incoming and outgoing orders.</p>
 //         </div>
 
+//         {/* ✅ 3. Add the new component here, on top of the existing filters */}
+//         <OrderSearch
+//           onSearchComplete={handleSearchResult}
+//           onSearchError={handleSearchError}
+//         />
+
+//         {/* --- ALL YOUR OTHER EXISTING UI REMAINS UNTOUCHED --- */}
 //         <OrderFilters onFilterChange={handleFilterChange} />
 
 //         {isGenerating && <div className="my-4 text-center text-blue-600 dark:text-blue-400 font-semibold">Generating Invoice...</div>}
@@ -150,7 +165,6 @@
 //           {!loading && !error && (
 //             <PaginatedTable columns={columns} data={orders} />
 //           )}
-          
 //           {apiPagination && apiPagination.totalPages > 1 && (
 //             <div className="px-6 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700">
 //               <p className="text-sm text-gray-700 dark:text-gray-300">Page {apiPagination.page} of {apiPagination.totalPages} ({apiPagination.total} records)</p>
@@ -162,36 +176,58 @@
 //           )}
 //         </div>
 //       </div>
-//       <OrderDetailModal isOpen={isModalOpen} onClose={closeModal} order={selectedOrder} />
+//       <OrderDetailModal
+//         isOpen={isModalOpen}
+//         onClose={closeModal}
+//         order={selectedOrder}
+//         onGenerateInvoice={handleGenerateInvoice}
+//       />
 //     </>
 //   );
 // };
 
 // export default Orders;
+
+
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { EyeIcon, DocumentTextIcon, TrashIcon } from '@heroicons/react/24/outline';
+// Import all necessary icons, including the new PencilIcon
+import { EyeIcon, DocumentTextIcon, TrashIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { generateInvoicePdf } from '../services/invoiceGenerator';
 import OrderDetailModal from '../components/OrderDetailModal';
 import OrderFilters from '../components/OrderFilters';
 import PaginatedTable from '../components/PaginatedTable';
 import { useAuth } from '../context/AuthContext';
-// ✅ 1. Import the new, separate search component
 import OrderSearch from '../components/OrderSearch';
+// Import the Modal and the new EditOrderForm component
+import Modal from '../components/Modal';
+import EditOrderForm from '../components/EditOrderForm';
 
 const Orders = () => {
-  // --- ALL YOUR EXISTING STATE AND LOGIC REMAINS UNTOUCHED ---
+  // State for the main table and its data
   const [orders, setOrders] = useState([]);
   const [apiPagination, setApiPagination] = useState(null);
   const [filters, setFilters] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // State for the "View Details" modal
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+  // State for the new "Edit Transaction" modal
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [orderToEdit, setOrderToEdit] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Other UI-related state
   const [isGenerating, setIsGenerating] = useState(false);
   const { isDeleteEnabled } = useAuth();
 
+  // --- DATA FETCHING AND HANDLERS ---
+
+  // Fetches the list of orders for the main table
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -209,15 +245,18 @@ const Orders = () => {
     }
   }, [currentPage, filters]);
 
+  // Initial data load and re-fetch when filters/page change
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
 
+  // Handles changes from the filter component
   const handleFilterChange = (newFilters) => {
     setCurrentPage(1);
     setFilters(newFilters);
   };
 
+  // Handles invoice generation
   const handleGenerateInvoice = async (orderId) => {
     setIsGenerating(true);
     try {
@@ -232,6 +271,7 @@ const Orders = () => {
     }
   };
 
+  // Handles deleting an order
   const handleDeleteOrder = async (orderId) => {
     if (window.confirm("Are you sure you want to delete this order? This action cannot be undone.")) {
       try {
@@ -246,27 +286,56 @@ const Orders = () => {
     }
   };
 
+  // --- MODAL HANDLERS ---
+
+  // Opens the "View Details" modal
   const handleViewDetails = (order) => {
     setSelectedOrder(order);
-    setIsModalOpen(true);
+    setIsDetailModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedOrder(null);
+  // Opens the "Edit Transaction" modal
+  const handleEditClick = (order) => {
+    setOrderToEdit(order);
+    setIsEditModalOpen(true);
   };
 
-  // ✅ 2. Add two small handler functions to connect the search component to the modal
+  // Closes the "Edit Transaction" modal
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setOrderToEdit(null);
+  };
+
+  // Submits changes from the edit form
+  const handleSaveChanges = async (orderId, updatedData) => {
+    setIsSubmitting(true);
+    try {
+      await axios.put(`${process.env.REACT_APP_API_BASE_URL}/orders/${orderId}`, updatedData);
+      alert('Transaction updated successfully!');
+      closeEditModal();
+      fetchOrders(); // Refresh the table data to show changes
+    } catch (err) {
+      alert(`Error: ${err.response?.data?.message || "Failed to update transaction."}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // --- SEARCH HANDLERS ---
+
+  // Handles successful search result from the OrderSearch component
   const handleSearchResult = (foundOrder) => {
     setSelectedOrder(foundOrder);
-    setIsModalOpen(true);
+    setIsDetailModalOpen(true); // Re-uses the detail modal for showing search results
   };
 
+  // Handles errors from the OrderSearch component
   const handleSearchError = (errorMessage) => {
     alert(`Error: ${errorMessage}`);
   };
 
-  // ✅ This is the full, restored columns definition for your table.
+  // --- TABLE DEFINITION ---
+
   const columns = [
     { Header: 'Date', accessor: 'date', Cell: (row) => new Date(row.date).toLocaleDateString() },
     { Header: 'ID', accessor: 'customOrderId' },
@@ -277,9 +346,8 @@ const Orders = () => {
       Header: 'Type',
       accessor: 'transactionType',
       Cell: (row) => (
-        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-          row.transactionType === 'order' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-        }`}>
+        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${row.transactionType === 'order' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+          }`}>
           {row.transactionType.toUpperCase()}
         </span>
       ),
@@ -296,13 +364,18 @@ const Orders = () => {
             <DocumentTextIcon className="h-5 w-5" />
           </button>
           {isDeleteEnabled && (
-            <button
-              onClick={() => handleDeleteOrder(row._id)}
-              className="text-red-500 hover:text-red-700"
-              title="Delete Order"
-            >
-              <TrashIcon className="h-5 w-5" />
-            </button>
+            <>
+              <button onClick={() => handleEditClick(row)} className="text-blue-600 hover:text-blue-400" title="Edit Transaction">
+                <PencilIcon className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => handleDeleteOrder(row._id)}
+                className="text-red-500 hover:text-red-700"
+                title="Delete Order"
+              >
+                <TrashIcon className="h-5 w-5" />
+              </button>
+            </>
           )}
         </div>
       ),
@@ -317,13 +390,11 @@ const Orders = () => {
           <p className="mt-1 text-md text-gray-500 dark:text-gray-400">A log of all incoming and outgoing orders.</p>
         </div>
 
-        {/* ✅ 3. Add the new component here, on top of the existing filters */}
         <OrderSearch
           onSearchComplete={handleSearchResult}
           onSearchError={handleSearchError}
         />
 
-        {/* --- ALL YOUR OTHER EXISTING UI REMAINS UNTOUCHED --- */}
         <OrderFilters onFilterChange={handleFilterChange} />
 
         {isGenerating && <div className="my-4 text-center text-blue-600 dark:text-blue-400 font-semibold">Generating Invoice...</div>}
@@ -345,12 +416,24 @@ const Orders = () => {
           )}
         </div>
       </div>
+
+      {/* Modal for Viewing Details */}
       <OrderDetailModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
         order={selectedOrder}
         onGenerateInvoice={handleGenerateInvoice}
       />
+
+      {/* Modal for Editing a Transaction */}
+      <Modal isOpen={isEditModalOpen} onClose={closeEditModal} title={`Edit ${orderToEdit?.customOrderId || 'Transaction'}`}>
+        <EditOrderForm
+          orderToEdit={orderToEdit}
+          onSave={handleSaveChanges}
+          onClose={closeEditModal}
+          isSubmitting={isSubmitting}
+        />
+      </Modal>
     </>
   );
 };
