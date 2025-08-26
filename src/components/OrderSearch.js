@@ -33,13 +33,13 @@ const OrderSearch = ({ onSearchComplete, onSearchError }) => {
       <label htmlFor="search-order" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
         Search by Order/Bill ID
       </label>
-      <div className="mt-1 flex gap-2">
+      <div className="mt-1 flex sm:flex-row flex-col gap-2">
         <input
           type="text"
           id="search-order"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="e.g., ORD-0012 or BILL-0005"
+          placeholder="e.g., ORD-0012 / BILL-0005"
           className="flex-grow px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
         />

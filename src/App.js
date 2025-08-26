@@ -18,6 +18,8 @@ import Orders from './pages/Orders'; // <-- Import the new Orders page
 import MasterAdmin from './pages/MasterAdmin';
 
 import { ThemeProvider } from './context/ThemeContext'; // ✅ Import the ThemeProvider
+import AssociateCompanies from './pages/AssociateCompanies';
+import AssociateCompanyDetail from './pages/AssociateCompanyDetail';
 
 
 function App() {
@@ -38,6 +40,8 @@ function App() {
               <Route path="/party/:id" element={<PartyDetail />} />
               <Route path="/factories" element={<Factories />} />
               <Route path="/factory/:id" element={<FactoryDetail />} />
+              <Route path="/associate-companies" element={<AssociateCompanies />} />
+              <Route path="/associate-company/:id" element={<AssociateCompanyDetail />} />
               <Route path="/orders" element={<Orders />} /> {/* <-- Add the new route here */}
               <Route path="/master-admin" element={<MasterAdmin />} /> {/* <-- Add the new route */}
             </Route>

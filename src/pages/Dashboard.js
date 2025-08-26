@@ -442,6 +442,17 @@ const Dashboard = () => {
             <p className="mt-1 text-md text-gray-500 dark:text-gray-400">Overview of your inventory and operations.</p>
           </div>
           <div className="flex items-center gap-3">
+            <button onClick={() => setIsInventoryModalOpen(true)} className="flex items-center sm:gap-2 gap-1 sm:px-4 px-2 py-2 text-white bg-green-600 rounded-md hover:bg-green-700">
+              <PlusIcon className="h-5 w-5" /> <span className='sm:block hidden'>Add</span>Stock
+            </button>
+            <button onClick={() => setIsBillModalOpen(true)} className="flex items-center gap-2 px-4 py-2 text-white bg-gray-600 rounded-md hover:bg-gray-700">
+              <PlusIcon className="h-5 w-5" /> <span className='sm:block hidden'>Add</span>Bill
+            </button>
+            <button onClick={() => setIsOrderModalOpen(true)} className="flex items-center gap-2 px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700">
+              <PlusIcon className="h-5 w-5" /> <span className='sm:block hidden'>Add</span>Order
+            </button>
+          </div>
+          {/* <div className="flex items-center gap-3">
             <button onClick={() => setIsInventoryModalOpen(true)} className="flex items-center gap-2 px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700">
               <PlusIcon className="h-5 w-5" /> Add Stock
             </button>
@@ -451,7 +462,7 @@ const Dashboard = () => {
             <button onClick={() => setIsOrderModalOpen(true)} className="flex items-center gap-2 px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700">
               <PlusIcon className="h-5 w-5" /> Add Order
             </button>
-          </div>
+          </div> */}
         </div>
 
         <div className="flex flex-col gap-8">

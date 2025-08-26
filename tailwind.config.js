@@ -16,7 +16,11 @@ content: [
 "./src/**/*.{js,jsx,ts,tsx}",
 ],
 theme: {
-extend: {},
+extend: {
+    screens: {
+        'lg-custom': '850px',
+      },
+},
 },
 plugins: [],
 }

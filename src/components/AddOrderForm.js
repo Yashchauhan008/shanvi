@@ -417,14 +417,14 @@
 
 // export default AddOrderForm;
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
 
 const allInventoryItems = [
-    { name: 'Film White', schemaKey: 'film_white', unit: 'kg' }, { name: 'Film Blue', schemaKey: 'film_blue', unit: 'kg' },
-    { name: 'Patti Role', schemaKey: 'patti_role', unit: 'kg' }, { name: 'Packing Clip', schemaKey: 'packing_clip', unit: 'kg' },
+    { name: 'Film White', schemaKey: 'film_white', unit: 'pcs' }, { name: 'Film Blue', schemaKey: 'film_blue', unit: 'pcs' },
+    { name: 'Patti Role', schemaKey: 'patti_role', unit: 'pcs' }, { name: 'Packing Clip', schemaKey: 'packing_clip', unit: 'pcs' },
     { name: 'Angle Board 24', schemaKey: 'angle_board_24', unit: 'pcs' }, { name: 'Angle Board 32', schemaKey: 'angle_board_32', unit: 'pcs' },
     { name: 'Angle Board 36', schemaKey: 'angle_board_36', unit: 'pcs' }, { name: 'Angle Board 39', schemaKey: 'angle_board_39', unit: 'pcs' },
     { name: 'Angle Board 48', schemaKey: 'angle_board_48', unit: 'pcs' }, { name: 'Cap Hit', schemaKey: 'cap_hit', unit: 'pcs' },

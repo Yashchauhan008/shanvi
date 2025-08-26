@@ -104,8 +104,8 @@
 import React, { useState } from 'react';
 
 const allInventoryItems = [
-    { name: 'Film White', unit: 'kg', schemaKey: 'film_white' }, { name: 'Film Blue', unit: 'kg', schemaKey: 'film_blue' },
-    { name: 'Patti Role', unit: 'kg', schemaKey: 'patti_role' }, { name: 'Packing Clip', unit: 'kg', schemaKey: 'packing_clip' },
+    { name: 'Film White', unit: 'pcs', schemaKey: 'film_white' }, { name: 'Film Blue', unit: 'pcs', schemaKey: 'film_blue' },
+    { name: 'Patti Role', unit: 'pcs', schemaKey: 'patti_role' }, { name: 'Packing Clip', unit: 'pcs', schemaKey: 'packing_clip' },
     { name: 'Angle Board 24', unit: 'pcs', schemaKey: 'angle_board_24' }, { name: 'Angle Board 32', unit: 'pcs', schemaKey: 'angle_board_32' },
     { name: 'Angle Board 36', unit: 'pcs', schemaKey: 'angle_board_36' }, { name: 'Angle Board 39', unit: 'pcs', schemaKey: 'angle_board_39' },
     { name: 'Angle Board 48', unit: 'pcs', schemaKey: 'angle_board_48' }, { name: 'Cap Hit', unit: 'pcs', schemaKey: 'cap_hit' },
