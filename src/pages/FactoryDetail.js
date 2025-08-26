@@ -122,9 +122,23 @@ import DateRangeFilter from '../components/DateRangeFilter';
 // Helper to get current month's start/end dates
 const getMonthStartEnd = () => {
   const now = new Date();
-  const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-  const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
-  return { startDate, endDate };
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const startDate = new Date(year, month, 1);
+  const endDate = new Date(year, month + 1, 0);
+  const formatDate = (date) => {
+    const d = new Date(date);
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+    const year = d.getFullYear();
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+    return [year, month, day].join('-');
+  };
+  return {
+    startDate: formatDate(startDate),
+    endDate: formatDate(endDate),
+  };
 };
 
 const FactoryDetail = () => {
