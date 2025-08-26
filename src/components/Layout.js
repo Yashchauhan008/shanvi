@@ -200,7 +200,7 @@ const Layout = () => {
             {/* --- Logo / Brand Name --- */}
             <div className="flex-shrink-0">
               <NavLink to="/dashboard" className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-                Shanvi
+                Shanvi Enterprice
               </NavLink>
             </div>
 
