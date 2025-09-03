@@ -9,6 +9,7 @@ const versions = [
     changes: [
       { type: 'Feature', text: 'Added a version history and changelog to the Masters page.', icon: PlusCircleIcon },
       { type: 'Feature', text: 'Added a edit stock functionality', icon: PlusCircleIcon },
+      { type: 'Feature', text: 'Added a tooltip of pallet counts in transaction histories', icon: PlusCircleIcon },
       { type: 'Fix', text: 'Fixed the live data fetching on the Dashboard date filter to only refresh the Pallet Details table.', icon: BugAntIcon },
       { type: 'Fix', text: 'vehicle number and name fields added in the "Add Bill" section.', icon: WrenchScrewdriverIcon },
       { type: 'Fix', text: 'Prop drill date filter input from party name selection to factory.', icon: WrenchScrewdriverIcon },
@@ -18,7 +19,7 @@ const versions = [
   },
   {
     version: '1.4.0',
-    date: 'September 1, 2025',
+    date: 'September 28, 2025',
     changes: [
       { type: 'Feature', text: 'Implemented live search for orders by ID on the Orders page.', icon: PlusCircleIcon },
       { type: 'Feature', text: 'Enabled editing of all transaction details, including complex inventory adjustments.', icon: WrenchScrewdriverIcon },
