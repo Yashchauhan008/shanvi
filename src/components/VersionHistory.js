@@ -9,6 +9,7 @@ const versions = [
     changes: [
       { type: 'Feature', text: 'Added a version history and changelog to the Masters page.', icon: PlusCircleIcon },
       { type: 'Fix', text: 'Corrected the live data fetching on the Dashboard date filter to only refresh the Pallet Details table.', icon: WrenchScrewdriverIcon },
+      { type: 'Fix', text: 'vehicle number and name fields added in the "Add Bill" section.', icon: WrenchScrewdriverIcon },
     ],
   },
   {
