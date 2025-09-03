@@ -37,6 +37,7 @@ import PalletManager from '../components/PalletManager';
 import ReportGenerator from '../components/ReportGenerator';
 import DeleteToggle from '../components/DeleteToggle';
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import VersionHistory from '../components/VersionHistory';
 
 // The component name is changed to match the router if needed, or keep as Masters.
 const MasterAdmin = () => {
@@ -74,6 +75,8 @@ const MasterAdmin = () => {
       <div className="flex flex-col gap-8">
         <ReportGenerator />
         <PalletManager />
+        <VersionHistory />
+
         {/* This component was missing from your provided code but likely intended to be here */}
       </div>
       {/* ✅ END OF YOUR UI */}
