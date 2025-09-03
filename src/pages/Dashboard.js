@@ -320,12 +320,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { PlusIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
+import { PlusIcon, ArrowPathIcon, PencilSquareIcon } from '@heroicons/react/24/solid'; // Import PencilSquareIcon
 import Modal from '../components/Modal';
 import AddOrderForm from '../components/AddOrderForm';
 import AddInventoryForm from '../components/AddInventoryForm';
 import AddBillForm from '../components/AddBillForm';
 import DateRangeFilter from '../components/DateRangeFilter';
+import EditInventoryForm from '../components/EditInventoryForm'; // ✅ Import the new form
 
 const formatItemName = (key) => {
   return key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
@@ -358,7 +359,7 @@ const Dashboard = () => {
   // --- State for Data ---
   const [inventory, setInventory] = useState([]);
   const [palletStats, setPalletStats] = useState([]);
-  
+
   // --- State for UI Control ---
   const [pageLoading, setPageLoading] = useState(true);
   const [palletLoading, setPalletLoading] = useState(true);
@@ -369,6 +370,7 @@ const Dashboard = () => {
   const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false);
   const { user } = useAuth();
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isEditInventoryModalOpen, setIsEditInventoryModalOpen] = useState(false);
 
   const [dateFilters, setDateFilters] = useState({
     fromDate: getInitialDateRange().startDate,
@@ -419,9 +421,9 @@ const Dashboard = () => {
         setPalletLoading(false);
       }
     };
-    
+
     if (user?.id) {
-        fetchPalletData();
+      fetchPalletData();
     }
   }, [user, dateFilters, refreshKey]); // Depends on user, dates, and manual refresh
   // ✅ --- END OF FIX ---
@@ -469,6 +471,22 @@ const Dashboard = () => {
       setRefreshKey(k => k + 1);
     } catch (err) {
       alert(`Error: ${err.response?.data?.message || "Failed to update inventory."}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleEditInventory = async (editedData) => {
+    if (!user?.id) return;
+    setIsSubmitting(true);
+    try {
+      // Note the use of `axios.put` and the different endpoint
+      await axios.put(`${process.env.REACT_APP_API_BASE_URL}/production-house/${user.id}/inventory`, editedData);
+      alert("Inventory levels updated successfully!");
+      setIsEditInventoryModalOpen(false); // Close the edit modal
+      setRefreshKey(k => k + 1); // Refresh all data
+    } catch (err) {
+      alert(`Error: ${err.response?.data?.message || "Failed to edit inventory."}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -553,9 +571,12 @@ const Dashboard = () => {
                 <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Inventory Status</h2>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Current stock levels for all packaging items.</p>
               </div>
-              <div>
+              <div className='flex items-center gap-2'>
                 <button onClick={() => setRefreshKey(k => k + 1)} className="p-2 text-gray-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600" title="Refresh All Data">
                   <ArrowPathIcon className="h-6 w-6" />
+                </button>
+                <button onClick={() => setIsEditInventoryModalOpen(true)} className="flex items-center sm:gap-2 gap-1 sm:px-4 px-2 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                  <PencilSquareIcon className="h-5 w-5" />
                 </button>
               </div>
             </div>
@@ -602,6 +623,14 @@ const Dashboard = () => {
       </div>
 
       {/* Modals section remains the same */}
+      <Modal isOpen={isEditInventoryModalOpen} onClose={() => setIsEditInventoryModalOpen(false)} title="Edit Current Inventory Stock">
+        <EditInventoryForm
+          currentInventory={inventory}
+          onSave={handleEditInventory}
+          isSubmitting={isSubmitting}
+          onClose={() => setIsEditInventoryModalOpen(false)}
+        />
+      </Modal>
       <Modal isOpen={isOrderModalOpen} onClose={() => setIsOrderModalOpen(false)} title="Create New Order">
         <AddOrderForm onSave={handleSaveOrder} isSubmitting={isSubmitting} onClose={() => setIsOrderModalOpen(false)} />
       </Modal>
