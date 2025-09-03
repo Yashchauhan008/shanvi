@@ -1,3 +1,4 @@
+
 // import React, { useState, useEffect } from 'react';
 // import axios from 'axios';
 // import { useAuth } from '../context/AuthContext';
@@ -5,12 +6,10 @@
 
 // const getTodayDateString = () => new Date().toISOString().split('T')[0];
 
-// // Reusable styled input component
 // const FormInput = (props) => (
 //   <input {...props} className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50" />
 // );
 
-// // Reusable styled select component
 // const FormSelect = ({ children, ...props }) => (
 //   <select {...props} className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50">
 //     {children}
@@ -30,6 +29,12 @@
 //   const [availableFactories, setAvailableFactories] = useState([]);
 //   const [billDate, setBillDate] = useState(getTodayDateString());
 //   const [palletRows, setPalletRows] = useState([{ id: 1, size: '', quantity: '' }]);
+  
+//   // ✅ --- THIS IS THE FIX (Part 1) ---
+//   // Add state for the new vehicle and vehicle number fields.
+//   const [vehicle, setVehicle] = useState('');
+//   const [vehicleNumber, setVehicleNumber] = useState('');
+//   // ✅ --- END OF FIX (Part 1) ---
 
 //   useEffect(() => {
 //     const fetchFormData = async () => {
@@ -67,12 +72,22 @@
 //       alert("Validation Error: You must add at least one pallet with a selected size and a quantity greater than 0.");
 //       return;
 //     }
+    
+//     // ✅ --- THIS IS THE FIX (Part 3) ---
+//     // Add the new vehicle and vehicle_number fields to the data sent to the backend.
 //     const billData = {
-//       transactionType: 'bill', vehicle: 'N/A', vehicle_number: 'N/A',
-//       source, sourceModel, party_id: selectedPartyId, factory_id: selectedFactoryId,
+//       transactionType: 'bill',
+//       vehicle: vehicle, // Add vehicle
+//       vehicle_number: vehicleNumber, // Add vehicle number
+//       source,
+//       sourceModel,
+//       party_id: selectedPartyId,
+//       factory_id: selectedFactoryId,
 //       date: billDate,
 //       items: validPalletRows.map(({ size, quantity }) => ({ paletSize: size, quantity: parseInt(quantity, 10) })),
 //     };
+//     // ✅ --- END OF FIX (Part 3) ---
+    
 //     onSave(billData);
 //   };
 
@@ -119,6 +134,20 @@
 //         </div>
 //       </div>
 
+//       {/* ✅ --- THIS IS THE FIX (Part 2) --- */}
+//       {/* Add the new input fields for vehicle information. */}
+//       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-200 dark:border-gray-700 pt-6">
+//         <div>
+//           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Vehicle</label>
+//           <FormInput type="text" value={vehicle} onChange={(e) => setVehicle(e.target.value)} placeholder="e.g., Truck, Van" required />
+//         </div>
+//         <div>
+//           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Vehicle Number</label>
+//           <FormInput type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="e.g., MH-12-AB-1234" required />
+//         </div>
+//       </div>
+//       {/* ✅ --- END OF FIX (Part 2) --- */}
+
 //       <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
 //         <h3 className="text-md font-semibold text-gray-800 dark:text-gray-200">Pallet Details</h3>
 //         <div className="space-y-3 mt-2">
@@ -144,6 +173,7 @@
 // };
 
 // export default AddBillForm;
+
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -174,13 +204,17 @@ const AddBillForm = ({ onSave, onClose, isSubmitting }) => {
   const [selectedFactoryId, setSelectedFactoryId] = useState('');
   const [availableFactories, setAvailableFactories] = useState([]);
   const [billDate, setBillDate] = useState(getTodayDateString());
-  const [palletRows, setPalletRows] = useState([{ id: 1, size: '', quantity: '' }]);
   
-  // ✅ --- THIS IS THE FIX (Part 1) ---
-  // Add state for the new vehicle and vehicle number fields.
+  // ✅ --- THIS IS THE FIX ---
+  // The initial state for palletRows is now an array with two empty rows.
+  const [palletRows, setPalletRows] = useState([
+    { id: 1, size: '', quantity: '' },
+    { id: 2, size: '', quantity: '' }
+  ]);
+  // ✅ --- END OF FIX ---
+
   const [vehicle, setVehicle] = useState('');
   const [vehicleNumber, setVehicleNumber] = useState('');
-  // ✅ --- END OF FIX (Part 1) ---
 
   useEffect(() => {
     const fetchFormData = async () => {
@@ -218,13 +252,10 @@ const AddBillForm = ({ onSave, onClose, isSubmitting }) => {
       alert("Validation Error: You must add at least one pallet with a selected size and a quantity greater than 0.");
       return;
     }
-    
-    // ✅ --- THIS IS THE FIX (Part 3) ---
-    // Add the new vehicle and vehicle_number fields to the data sent to the backend.
     const billData = {
       transactionType: 'bill',
-      vehicle: vehicle, // Add vehicle
-      vehicle_number: vehicleNumber, // Add vehicle number
+      vehicle: vehicle,
+      vehicle_number: vehicleNumber,
       source,
       sourceModel,
       party_id: selectedPartyId,
@@ -232,8 +263,6 @@ const AddBillForm = ({ onSave, onClose, isSubmitting }) => {
       date: billDate,
       items: validPalletRows.map(({ size, quantity }) => ({ paletSize: size, quantity: parseInt(quantity, 10) })),
     };
-    // ✅ --- END OF FIX (Part 3) ---
-    
     onSave(billData);
   };
 
@@ -280,8 +309,6 @@ const AddBillForm = ({ onSave, onClose, isSubmitting }) => {
         </div>
       </div>
 
-      {/* ✅ --- THIS IS THE FIX (Part 2) --- */}
-      {/* Add the new input fields for vehicle information. */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-200 dark:border-gray-700 pt-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Vehicle</label>
@@ -292,7 +319,6 @@ const AddBillForm = ({ onSave, onClose, isSubmitting }) => {
           <FormInput type="text" value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} placeholder="e.g., MH-12-AB-1234" required />
         </div>
       </div>
-      {/* ✅ --- END OF FIX (Part 2) --- */}
 
       <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
         <h3 className="text-md font-semibold text-gray-800 dark:text-gray-200">Pallet Details</h3>
