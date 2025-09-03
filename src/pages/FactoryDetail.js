@@ -3,13 +3,29 @@
 // import axios from 'axios';
 // import PalletTable from '../components/PalletTable';
 // import TransactionHistory from '../components/TransactionHistory';
+// // ✅ 1. Import the reusable DateRangeFilter component
+// import DateRangeFilter from '../components/DateRangeFilter';
 
 // // Helper to get current month's start/end dates
 // const getMonthStartEnd = () => {
 //   const now = new Date();
-//   const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-//   const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
-//   return { startDate, endDate };
+//   const year = now.getFullYear();
+//   const month = now.getMonth();
+//   const startDate = new Date(year, month, 1);
+//   const endDate = new Date(year, month + 1, 0);
+//   const formatDate = (date) => {
+//     const d = new Date(date);
+//     let month = '' + (d.getMonth() + 1);
+//     let day = '' + d.getDate();
+//     const year = d.getFullYear();
+//     if (month.length < 2) month = '0' + month;
+//     if (day.length < 2) day = '0' + day;
+//     return [year, month, day].join('-');
+//   };
+//   return {
+//     startDate: formatDate(startDate),
+//     endDate: formatDate(endDate),
+//   };
 // };
 
 // const FactoryDetail = () => {
@@ -43,6 +59,7 @@
 //     fetchFactoryDetails();
 //   }, [fetchFactoryDetails]);
 
+//   // ✅ 2. The handler function is now simplified
 //   const handleDateChange = (e) => {
 //     const { name, value } = e.target;
 //     setDateFilters(prev => ({ ...prev, [name]: value }));
@@ -66,14 +83,12 @@
 //   return (
 //     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
 //       <div className="mb-8">
-//         {/* ✅ Add dark mode classes */}
 //         <Link to="/factories" className="text-sm text-teal-600 dark:text-teal-400 hover:text-teal-800 font-semibold">&larr; Back to Factories</Link>
 //         <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mt-2">{factory.name}</h1>
 //       </div>
 
 
 //       <div className="flex flex-col gap-8">
-//         {/* ✅ Add dark mode classes */}
 //         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
 //           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Parent Party</h2>
 //           <div className="mt-4">
@@ -87,20 +102,12 @@
 //           </div>
 //         </div>
 
-//       {/* --- Shared Filter Bar --- */}
-//       {/* ✅ Add dark mode classes */}
-//       <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-//         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">From Date</label>
-//             <input type="date" name="fromDate" value={dateFilters.fromDate} onChange={handleDateChange} className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-//           </div>
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">To Date</label>
-//             <input type="date" name="toDate" value={dateFilters.toDate} onChange={handleDateChange} className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-//           </div>
-//         </div>
-//       </div>
+//         {/* ✅ 3. Use the reusable DateRangeFilter component */}
+//         <DateRangeFilter 
+//           fromDate={dateFilters.fromDate}
+//           toDate={dateFilters.toDate}
+//           onDateChange={handleDateChange}
+//         />
 
 //         {/* Pass the shared dates down to both components */}
 //         <PalletTable factoryId={id} fromDate={dateFilters.fromDate} toDate={dateFilters.toDate} />
@@ -111,21 +118,23 @@
 // };
 
 // export default FactoryDetail;
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import PalletTable from '../components/PalletTable';
 import TransactionHistory from '../components/TransactionHistory';
-// ✅ 1. Import the reusable DateRangeFilter component
 import DateRangeFilter from '../components/DateRangeFilter';
 
-// Helper to get current month's start/end dates
+// ✅ --- THIS IS THE FIX (Part 1) ---
+// The helper function is updated to set the default start date.
 const getMonthStartEnd = () => {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth();
-  const startDate = new Date(year, month, 1);
+  const startDate = '2025-01-01'; // Set the new default start date
   const endDate = new Date(year, month + 1, 0);
+
   const formatDate = (date) => {
     const d = new Date(date);
     let month = '' + (d.getMonth() + 1);
@@ -135,24 +144,43 @@ const getMonthStartEnd = () => {
     if (day.length < 2) day = '0' + day;
     return [year, month, day].join('-');
   };
+
   return {
-    startDate: formatDate(startDate),
+    startDate: startDate,
     endDate: formatDate(endDate),
   };
 };
+// ✅ --- END OF FIX (Part 1) ---
 
 const FactoryDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  // ✅ --- THIS IS THE FIX (Part 2) ---
+  // useLocation hook gives us access to the URL's query parameters.
+  const location = useLocation();
+  // ✅ --- END OF FIX (Part 2) ---
+
   const [factory, setFactory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // State for the shared date filters now lives in the parent
-  const [dateFilters, setDateFilters] = useState({
-    fromDate: getMonthStartEnd().startDate,
-    toDate: getMonthStartEnd().endDate,
+  // ✅ --- THIS IS THE FIX (Part 3) ---
+  // The initial state of the date filters is now determined by the URL.
+  const [dateFilters, setDateFilters] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    const fromDate = params.get('fromDate');
+    const toDate = params.get('toDate');
+    
+    // If dates are present in the URL, use them. Otherwise, use the default.
+    if (fromDate && toDate) {
+      return { fromDate, toDate };
+    }
+    return {
+      fromDate: getMonthStartEnd().startDate,
+      toDate: getMonthStartEnd().endDate,
+    };
   });
+  // ✅ --- END OF FIX (Part 3) ---
 
   const fetchFactoryDetails = useCallback(async () => {
     try {
@@ -172,7 +200,6 @@ const FactoryDetail = () => {
     fetchFactoryDetails();
   }, [fetchFactoryDetails]);
 
-  // ✅ 2. The handler function is now simplified
   const handleDateChange = (e) => {
     const { name, value } = e.target;
     setDateFilters(prev => ({ ...prev, [name]: value }));
@@ -200,7 +227,6 @@ const FactoryDetail = () => {
         <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mt-2">{factory.name}</h1>
       </div>
 
-
       <div className="flex flex-col gap-8">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Parent Party</h2>
@@ -215,14 +241,12 @@ const FactoryDetail = () => {
           </div>
         </div>
 
-        {/* ✅ 3. Use the reusable DateRangeFilter component */}
         <DateRangeFilter 
           fromDate={dateFilters.fromDate}
           toDate={dateFilters.toDate}
           onDateChange={handleDateChange}
         />
-
-        {/* Pass the shared dates down to both components */}
+        
         <PalletTable factoryId={id} fromDate={dateFilters.fromDate} toDate={dateFilters.toDate} />
         <TransactionHistory factoryId={id} fromDate={dateFilters.fromDate} toDate={dateFilters.toDate} />
       </div>

@@ -335,7 +335,7 @@ const getInitialDateRange = () => {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth();
-  const startDate = '2000-01-01';
+  const startDate = '2025-01-01';
   const endDate = new Date(year, month + 1, 0);
 
   const formatDate = (date) => {

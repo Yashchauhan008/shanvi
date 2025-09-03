@@ -10,6 +10,8 @@ const versions = [
       { type: 'Feature', text: 'Added a version history and changelog to the Masters page.', icon: PlusCircleIcon },
       { type: 'Fix', text: 'Corrected the live data fetching on the Dashboard date filter to only refresh the Pallet Details table.', icon: WrenchScrewdriverIcon },
       { type: 'Fix', text: 'vehicle number and name fields added in the "Add Bill" section.', icon: WrenchScrewdriverIcon },
+      { type: 'Fix', text: 'Prop drill date filter input from party name selection to factory.', icon: WrenchScrewdriverIcon },
+      { type: 'Fix', text: 'Date filters should always show lifetime data.', icon: WrenchScrewdriverIcon },
     ],
   },
   {
