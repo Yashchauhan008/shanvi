@@ -30,7 +30,7 @@
 //       'Cap Simple (pcs)': order.cap_simple,
 //       'Firmshit (pcs)': order.firmshit,
 //       'Thermocol (pcs)': order.thermocol,
-//       'Mettle Angle (pcs)': order.mettle_angle,
+//       'Metal Angle (pcs)': order.metal_angle,
 //       'Black Cover (pcs)': order.black_cover,
 //       'Patiya (pcs)': order.patiya,
 //       'Plypatia (pcs)': order.plypatia,
@@ -99,7 +99,7 @@ export const exportToExcel = (apiData, fileName) => {
 
       'Firmshit (pcs)': order.firmshit,
       'Thermocol (pcs)': order.thermocol,
-      'Mettle Angle (pcs)': order.mettle_angle,
+      'Metal Angle (pcs)': order.metal_angle,
       'Black Cover (pcs)': order.black_cover,
       'Patiya (pcs)': order.patiya,
       'Plypatia (pcs)': order.plypatia,

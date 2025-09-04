@@ -316,17 +316,18 @@
 
 // export default Dashboard;
 
+// src/pages/Dashboard.js
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { PlusIcon, ArrowPathIcon, PencilSquareIcon } from '@heroicons/react/24/solid'; // Import PencilSquareIcon
+import { PlusIcon, ArrowPathIcon, PencilSquareIcon } from '@heroicons/react/24/solid';
 import Modal from '../components/Modal';
 import AddOrderForm from '../components/AddOrderForm';
 import AddInventoryForm from '../components/AddInventoryForm';
 import AddBillForm from '../components/AddBillForm';
+import EditInventoryForm from '../components/EditInventoryForm';
 import DateRangeFilter from '../components/DateRangeFilter';
-import EditInventoryForm from '../components/EditInventoryForm'; // ✅ Import the new form
 
 const formatItemName = (key) => {
   return key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
@@ -350,17 +351,14 @@ const getInitialDateRange = () => {
   };
 
   return {
-    startDate: startDate,
-    endDate: formatDate(endDate),
+    fromDate: startDate, // Corrected key to match the state
+    toDate: formatDate(endDate), // Corrected key to match the state
   };
 };
 
 const Dashboard = () => {
-  // --- State for Data ---
   const [inventory, setInventory] = useState([]);
   const [palletStats, setPalletStats] = useState([]);
-
-  // --- State for UI Control ---
   const [pageLoading, setPageLoading] = useState(true);
   const [palletLoading, setPalletLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -368,71 +366,66 @@ const Dashboard = () => {
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isBillModalOpen, setIsBillModalOpen] = useState(false);
   const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false);
+  const [isEditInventoryModalOpen, setIsEditInventoryModalOpen] = useState(false);
   const { user } = useAuth();
   const [refreshKey, setRefreshKey] = useState(0);
-  const [isEditInventoryModalOpen, setIsEditInventoryModalOpen] = useState(false);
+  const [dateFilters, setDateFilters] = useState(getInitialDateRange());
 
-  const [dateFilters, setDateFilters] = useState({
-    fromDate: getInitialDateRange().startDate,
-    toDate: getInitialDateRange().endDate,
-  });
+  const fetchInventory = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/production-house/${user.id}/inventory`;
+      const response = await axios.get(apiUrl);
+      const formatted = Object.entries(response.data.data)
+        .filter(([key]) => key !== '_id')
+        .map(([key, value]) => ({
+          name: formatItemName(key),
+          quantity: value,
+          schemaKey: key
+        }));
+      setInventory(formatted);
+    } catch (err) {
+      console.error("Failed to fetch inventory:", err);
+      setError("Could not load inventory data.");
+    }
+  }, [user]);
 
-  // ✅ --- THIS IS THE FIX (Part 1) ---
-  // This useEffect hook is ONLY for the initial page load and manual refresh.
-  // It fetches the inventory, which does NOT change with dates.
+  const fetchPalletStats = useCallback(async () => {
+    setPalletLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (dateFilters.fromDate) params.append('startDate', dateFilters.fromDate);
+      if (dateFilters.toDate) params.append('endDate', dateFilters.toDate);
+      const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/orders/stats/pallets?${params.toString()}`;
+      const response = await axios.get(apiUrl);
+      setPalletStats(response.data.data);
+    } catch (err) {
+      console.error("Failed to fetch pallet stats:", err);
+    } finally {
+      setPalletLoading(false);
+    }
+  }, [dateFilters]);
+
   useEffect(() => {
     const loadStaticData = async () => {
       if (!user?.id) return;
       setPageLoading(true);
-      try {
-        const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/production-house/${user.id}/inventory`;
-        const response = await axios.get(apiUrl);
-        const formatted = Object.entries(response.data.data)
-          .filter(([key]) => key !== '_id')
-          .map(([key, value]) => ({ name: formatItemName(key), quantity: value }));
-        setInventory(formatted);
-      } catch (err) {
-        console.error("Failed to fetch inventory:", err);
-        setError("Could not load inventory data.");
-      } finally {
-        setPageLoading(false);
-      }
+      await fetchInventory();
+      setPageLoading(false);
     };
     loadStaticData();
-  }, [user, refreshKey]); // Depends only on user and manual refresh
+  }, [user, refreshKey, fetchInventory]);
 
-  // ✅ --- THIS IS THE FIX (Part 2) ---
-  // This useEffect hook is ONLY for the pallet data.
-  // It runs on initial load AND whenever the date filters change.
   useEffect(() => {
-    const fetchPalletData = async () => {
-      setPalletLoading(true);
-      try {
-        const params = new URLSearchParams();
-        if (dateFilters.fromDate) params.append('startDate', dateFilters.fromDate);
-        if (dateFilters.toDate) params.append('endDate', dateFilters.toDate);
-        const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/orders/stats/pallets?${params.toString()}`;
-        const response = await axios.get(apiUrl);
-        setPalletStats(response.data.data);
-      } catch (err) {
-        console.error("Failed to fetch pallet stats:", err);
-        setError("Could not load pallet data.");
-      } finally {
-        setPalletLoading(false);
-      }
-    };
-
-    if (user?.id) {
-      fetchPalletData();
+    if (!pageLoading) {
+      fetchPalletStats();
     }
-  }, [user, dateFilters, refreshKey]); // Depends on user, dates, and manual refresh
-  // ✅ --- END OF FIX ---
+  }, [dateFilters, fetchPalletStats, pageLoading]);
 
   const handleDateChange = (e) => {
     setDateFilters(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // (All handleSave... functions remain unchanged)
   const handleSaveOrder = async (orderData) => {
     setIsSubmitting(true);
     try {
@@ -461,10 +454,16 @@ const Dashboard = () => {
     }
   };
 
+  // ✅ --- THIS IS THE FIX ---
+  // The `handleSaveInventory` function was using the display name (e.g., "Metal Angle")
+  // as the key instead of the schema key (e.g., "metal_angle").
+  // The backend controller was expecting the schema key.
   const handleSaveInventory = async (addedData) => {
     if (!user?.id) return;
     setIsSubmitting(true);
     try {
+      // The `addedData` from the form now correctly uses schemaKey, so no change is needed here.
+      // The fix was in the form itself. This function is now correct.
       await axios.post(`${process.env.REACT_APP_API_BASE_URL}/production-house/${user.id}/inventory`, addedData);
       alert("Inventory updated successfully!");
       setIsInventoryModalOpen(false);
@@ -475,16 +474,16 @@ const Dashboard = () => {
       setIsSubmitting(false);
     }
   };
+  // ✅ --- END OF FIX ---
 
   const handleEditInventory = async (editedData) => {
     if (!user?.id) return;
     setIsSubmitting(true);
     try {
-      // Note the use of `axios.put` and the different endpoint
       await axios.put(`${process.env.REACT_APP_API_BASE_URL}/production-house/${user.id}/inventory`, editedData);
       alert("Inventory levels updated successfully!");
-      setIsEditInventoryModalOpen(false); // Close the edit modal
-      setRefreshKey(k => k + 1); // Refresh all data
+      setIsEditInventoryModalOpen(false);
+      setRefreshKey(k => k + 1);
     } catch (err) {
       alert(`Error: ${err.response?.data?.message || "Failed to edit inventory."}`);
     } finally {
@@ -502,7 +501,6 @@ const Dashboard = () => {
   return (
     <>
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Header section remains the same */}
         <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Main Dashboard</h1>
@@ -522,19 +520,19 @@ const Dashboard = () => {
         </div>
 
         <div className="flex flex-col gap-8">
-          <DateRangeFilter fromDate={dateFilters.fromDate} toDate={dateFilters.toDate} onDateChange={handleDateChange} />
-
-          {/* Pallet Details Table */}
+          <DateRangeFilter
+            fromDate={dateFilters.fromDate}
+            toDate={dateFilters.toDate}
+            onDateChange={handleDateChange}
+          />          
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
             <div className="p-5 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Pallet Details</h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Summary of pallet usage based on the selected date range.</p>
             </div>
             <div className="overflow-x-auto">
-              {palletLoading && <div className="p-6 text-center text-gray-500 dark:text-gray-400">Loading pallet details...</div>}
-              {!palletLoading && (
+              {palletLoading ? <div className="p-6 text-center text-gray-500 dark:text-gray-400">Loading pallet details...</div> : (
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  {/* Table content remains the same */}
                   <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Pallet Size</th>
@@ -563,8 +561,6 @@ const Dashboard = () => {
               )}
             </div>
           </div>
-
-          {/* Inventory Status section remains the same */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
             <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
               <div>
@@ -622,7 +618,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Modals section remains the same */}
       <Modal isOpen={isEditInventoryModalOpen} onClose={() => setIsEditInventoryModalOpen(false)} title="Edit Current Inventory Stock">
         <EditInventoryForm
           currentInventory={inventory}

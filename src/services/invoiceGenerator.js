@@ -20,7 +20,7 @@
 //   { key: 'angle_board_36', name: 'Angle Board 36' }, { key: 'angle_board_39', name: 'Angle Board 39' },
 //   { key: 'angle_board_48', name: 'Angle Board 48' }, { key: 'cap_hit', name: 'Cap Hit' },
 //   { key: 'cap_simple', name: 'Cap Simple' }, { key: 'firmshit', name: 'Firmshit' },
-//   { key: 'thermocol', name: 'Thermocol' }, { key: 'mettle_angle', name: 'Mettle Angle' },
+//   { key: 'thermocol', name: 'Thermocol' }, { key: 'metal_angle', name: 'Metal Angle' },
 //   { key: 'black_cover', name: 'Black Cover' }, { key: 'patiya', name: 'Patiya' },
 //   { key: 'plypatia', name: 'Plypatia' },
 // ];
@@ -220,7 +220,7 @@ const allInventoryItems = [
   { key: 'angle_board_36', name: 'Angle Board 36' }, { key: 'angle_board_39', name: 'Angle Board 39' },
   { key: 'angle_board_48', name: 'Angle Board 48' }, { key: 'cap_hit', name: 'Cap Hit' },
   { key: 'cap_simple', name: 'Cap Simple' }, { key: 'firmshit', name: 'Firmshit' },
-  { key: 'thermocol', name: 'Thermocol' }, { key: 'mettle_angle', name: 'Mettle Angle' },
+  { key: 'thermocol', name: 'Thermocol' }, { key: 'metal_angle', name: 'Metal Angle' },
   { key: 'black_cover', name: 'Black Cover' }, { key: 'patiya', name: 'Patiya' },
   { key: 'plypatia', name: 'Plypatia' },
 ];
