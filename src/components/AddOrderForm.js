@@ -5,8 +5,8 @@
 // import { PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
 
 // const allInventoryItems = [
-//     { name: 'Film White', schemaKey: 'film_white', unit: 'pcs' }, { name: 'Film Blue', schemaKey: 'film_blue', unit: 'pcs' },
-//     { name: 'Patti Role', schemaKey: 'patti_role', unit: 'pcs' }, { name: 'Packing Clip', schemaKey: 'packing_clip', unit: 'pcs' },
+//     { name: 'Film White', schemaKey: 'film_white', unit: 'kg' }, { name: 'Film Blue', schemaKey: 'film_blue', unit: 'kg' },
+//     { name: 'Patti Role', schemaKey: 'patti_role', unit: 'kg' }, { name: 'Packing Clip', schemaKey: 'packing_clip', unit: 'kg' },
 //     { name: 'Angle Board 24', schemaKey: 'angle_board_24', unit: 'pcs' }, { name: 'Angle Board 32', schemaKey: 'angle_board_32', unit: 'pcs' },
 //     { name: 'Angle Board 36', schemaKey: 'angle_board_36', unit: 'pcs' }, { name: 'Angle Board 39', schemaKey: 'angle_board_39', unit: 'pcs' },
 //     { name: 'Angle Board 48', schemaKey: 'angle_board_48', unit: 'pcs' }, { name: 'Cap Hit', schemaKey: 'cap_hit', unit: 'pcs' },
@@ -41,7 +41,15 @@
 //   const [availableFactories, setAvailableFactories] = useState([]);
 //   const [vehicle, setVehicle] = useState('');
 //   const [vehicleNumber, setVehicleNumber] = useState('');
-//   const [palletRows, setPalletRows] = useState([{ id: 1, size: '', quantity: '' }]);
+  
+//   // ✅ --- THIS IS THE FIX ---
+//   // The initial state for palletRows is now an array with two empty rows.
+//   const [palletRows, setPalletRows] = useState([
+//     { id: 1, size: '', quantity: '' },
+//     { id: 2, size: '', quantity: '' }
+//   ]);
+//   // ✅ --- END OF FIX ---
+
 //   const [inventory, setInventory] = useState({});
 //   const [orderDate, setOrderDate] = useState(getTodayDateString());
 
@@ -86,26 +94,25 @@
 //       factory_id: selectedFactoryId, date: orderDate, vehicle, vehicle_number: vehicleNumber,
 //       items: validPalletRows.map(({ size, quantity }) => ({ paletSize: size, quantity: parseInt(quantity, 10) })),
 //     };
-    
-//     // This loop now correctly passes the raw string for CAPs and numbers for others.
 //     for (const item of allInventoryItems) {
-//       const value = inventory[item.schemaKey];
-//       if (value) {
-//         orderData[item.schemaKey] = value;
+//       if (inventory[item.schemaKey]) {
+//         orderData[item.schemaKey] = inventory[item.schemaKey];
 //       }
 //     }
-    
 //     onSave(orderData);
 //   };
 
 //   const addPalletRow = () => setPalletRows([...palletRows, { id: Date.now(), size: '', quantity: '' }]);
 //   const removePalletRow = (id) => setPalletRows(palletRows.filter(row => row.id !== id));
 //   const handlePalletChange = (id, field, value) => setPalletRows(palletRows.map(row => (row.id === id ? { ...row, [field]: value } : row)));
-  
+
 //   const handleInventoryChange = (schemaKey, value) => {
-//     const sanitizedValue = schemaKey.startsWith('cap_')
-//       ? value.replace(/[^0-9+ ]/g, '')
-//       : value.replace(/[^0-9.]/g, '');
+//     let sanitizedValue = '';
+//     if (schemaKey.startsWith('cap_')) {
+//       sanitizedValue = value.replace(/[^0-9+\s]/g, '');
+//     } else {
+//       sanitizedValue = value.replace(/[^0-9.]/g, '');
+//     }
 //     setInventory(prev => ({ ...prev, [schemaKey]: sanitizedValue }));
 //   };
 
@@ -181,28 +188,14 @@
 //             <div key={item.schemaKey}>
 //               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{item.name}</label>
 //               <div className="relative mt-1">
-//                 {item.schemaKey.startsWith('cap_') ? (
-//                   <FormInput
-//                     type="text"
-//                     placeholder="e.g., 48 + 36"
-//                     value={inventory[item.schemaKey] || ''}
-//                     onChange={(e) => handleInventoryChange(item.schemaKey, e.target.value)}
-//                   />
-//                 ) : (
-//                   <>
-//                     <FormInput
-//                       type="text"
-//                       pattern="[0-9.]*"
-//                       inputMode="decimal"
-//                       placeholder="0"
-//                       value={inventory[item.schemaKey] || ''}
-//                       onChange={(e) => handleInventoryChange(item.schemaKey, e.target.value)}
-//                     />
-//                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-//                       <span className="text-gray-500 dark:text-gray-400 text-sm">{item.unit}</span>
-//                     </div>
-//                   </>
-//                 )}
+//                 <FormInput
+//                   type="text"
+//                   value={inventory[item.schemaKey] || ''}
+//                   onChange={(e) => handleInventoryChange(item.schemaKey, e.target.value)}
+//                   placeholder="0"
+//                   inputMode={item.schemaKey.startsWith('cap_') ? 'text' : 'decimal'}
+//                 />
+//                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"><span className="text-gray-500 dark:text-gray-400 text-sm">{item.unit}</span></div>
 //               </div>
 //             </div>
 //           ))}
@@ -220,7 +213,6 @@
 // };
 
 // export default AddOrderForm;
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -263,15 +255,10 @@ const AddOrderForm = ({ onSave, onClose, isSubmitting }) => {
   const [availableFactories, setAvailableFactories] = useState([]);
   const [vehicle, setVehicle] = useState('');
   const [vehicleNumber, setVehicleNumber] = useState('');
-  
-  // ✅ --- THIS IS THE FIX ---
-  // The initial state for palletRows is now an array with two empty rows.
   const [palletRows, setPalletRows] = useState([
     { id: 1, size: '', quantity: '' },
     { id: 2, size: '', quantity: '' }
   ]);
-  // ✅ --- END OF FIX ---
-
   const [inventory, setInventory] = useState({});
   const [orderDate, setOrderDate] = useState(getTodayDateString());
 
@@ -329,12 +316,7 @@ const AddOrderForm = ({ onSave, onClose, isSubmitting }) => {
   const handlePalletChange = (id, field, value) => setPalletRows(palletRows.map(row => (row.id === id ? { ...row, [field]: value } : row)));
 
   const handleInventoryChange = (schemaKey, value) => {
-    let sanitizedValue = '';
-    if (schemaKey.startsWith('cap_')) {
-      sanitizedValue = value.replace(/[^0-9+\s]/g, '');
-    } else {
-      sanitizedValue = value.replace(/[^0-9.]/g, '');
-    }
+    const sanitizedValue = value.replace(/[^0-9.+\s]/g, '');
     setInventory(prev => ({ ...prev, [schemaKey]: sanitizedValue }));
   };
 
@@ -414,8 +396,8 @@ const AddOrderForm = ({ onSave, onClose, isSubmitting }) => {
                   type="text"
                   value={inventory[item.schemaKey] || ''}
                   onChange={(e) => handleInventoryChange(item.schemaKey, e.target.value)}
-                  placeholder="0"
-                  inputMode={item.schemaKey.startsWith('cap_') ? 'text' : 'decimal'}
+                  placeholder="e.g., 50.5 or 20+30.5"
+                  inputMode="decimal"
                 />
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"><span className="text-gray-500 dark:text-gray-400 text-sm">{item.unit}</span></div>
               </div>

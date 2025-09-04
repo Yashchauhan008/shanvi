@@ -4,6 +4,22 @@ import { TagIcon, WrenchScrewdriverIcon, PlusCircleIcon, BugAntIcon } from '@her
 // --- You can easily update this array with new versions and changes ---
 const versions = [
   {
+    version: '1.6.0',
+    date: 'September 4, 2025',
+    changes: [
+      // { type: 'Feature', text: 'Added a version history and changelog to the Masters page.', icon: PlusCircleIcon },
+      // { type: 'Feature', text: 'Added a edit stock functionality', icon: PlusCircleIcon },
+      // { type: 'Feature', text: 'Added a tooltip of pallet counts in transaction histories', icon: PlusCircleIcon },
+      // { type: 'Fix', text: 'Fixed the live data fetching on the Dashboard date filter to only refresh the Pallet Details table.', icon: BugAntIcon },
+      // { type: 'Fix', text: 'Dropdown data is sorted alphabetically always', icon: BugAntIcon },
+      // { type: 'Fix', text: 'vehicle number and name fields added in the "Add Bill" section.', icon: WrenchScrewdriverIcon },
+      // { type: 'Fix', text: 'Prop drill date filter input from party name selection to factory.', icon: WrenchScrewdriverIcon },
+      // { type: 'Fix', text: 'Date filters should always show lifetime data.', icon: WrenchScrewdriverIcon },
+      // { type: 'Fix', text: 'By default, select two types of pallets in every form.', icon: WrenchScrewdriverIcon },
+      { type: 'Fix', text: 'Allow decimal points (e.g., 12.90 kg) in all relevant fields', icon: BugAntIcon },
+    ],
+  },
+  {
     version: '1.5.0',
     date: 'September 3, 2025',
     changes: [
