@@ -17,6 +17,7 @@ const versions = [
       // { type: 'Fix', text: 'Date filters should always show lifetime data.', icon: WrenchScrewdriverIcon },
       // { type: 'Fix', text: 'By default, select two types of pallets in every form.', icon: WrenchScrewdriverIcon },
       { type: 'Fix', text: 'Allow decimal points (e.g., 12.90 kg) in all relevant fields', icon: BugAntIcon },
+      { type: 'Fix', text: 'In associate compney Date filters should always show lifetime data.', icon: BugAntIcon },
     ],
   },
   {

@@ -1,3 +1,4 @@
+
 // import React, { useState, useEffect, useCallback } from 'react';
 // import { useParams, Link } from 'react-router-dom';
 // import axios from 'axios';
@@ -5,6 +6,7 @@
 // import TransactionHistory from '../components/TransactionHistory';
 // import DateRangeFilter from '../components/DateRangeFilter';
 
+// // Helper function to get the current month's date range
 // const getMonthStartEnd = () => {
 //   const now = new Date();
 //   const year = now.getFullYear();
@@ -27,16 +29,18 @@
 // };
 
 // const AssociateCompanyDetail = () => {
-//   const { id } = useParams();
+//   const { id } = useParams(); // The company's ID from the URL
 //   const [company, setCompany] = useState(null);
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState(null);
 
+//   // State for the date filters
 //   const [dateFilters, setDateFilters] = useState({
 //     fromDate: getMonthStartEnd().startDate,
 //     toDate: getMonthStartEnd().endDate,
 //   });
 
+//   // Fetches the company's name for the header
 //   const fetchCompanyDetails = useCallback(async () => {
 //     try {
 //       setLoading(true);
@@ -55,6 +59,7 @@
 //     fetchCompanyDetails();
 //   }, [fetchCompanyDetails]);
 
+//   // Handles date changes from the filter component
 //   const handleDateChange = (e) => {
 //     const { name, value } = e.target;
 //     setDateFilters(prev => ({ ...prev, [name]: value }));
@@ -87,9 +92,22 @@
 //           onDateChange={handleDateChange}
 //         />
 
-//         {/* Note: The source prop needs the model name and ID */}
-//         <PalletTable source={`AssociateCompany:${id}`} fromDate={dateFilters.fromDate} toDate={dateFilters.toDate} />
-//         <TransactionHistory source={`AssociateCompany:${id}`} fromDate={dateFilters.fromDate} toDate={dateFilters.toDate} />
+//         {/* 
+//           ✅ --- THIS IS THE FIX ---
+//           The `source` prop is now correctly passed to the child components.
+//           The backend expects the format "ModelName:ID" to filter by the polymorphic source field.
+//         */}
+//         <PalletTable 
+//           source={`AssociateCompany:${id}`} 
+//           fromDate={dateFilters.fromDate} 
+//           toDate={dateFilters.toDate} 
+//         />
+//         <TransactionHistory 
+//           source={`AssociateCompany:${id}`} 
+//           fromDate={dateFilters.fromDate} 
+//           toDate={dateFilters.toDate} 
+//         />
+//         {/* ✅ --- END OF FIX --- */}
 //       </div>
 //     </div>
 //   );
@@ -98,19 +116,21 @@
 // export default AssociateCompanyDetail;
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+// ✅ 1. Import `useLocation` to read URL parameters.
+import { useParams, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import PalletTable from '../components/PalletTable';
 import TransactionHistory from '../components/TransactionHistory';
 import DateRangeFilter from '../components/DateRangeFilter';
 
-// Helper function to get the current month's date range
+// ✅ 2. Update the helper function to use the new default start date.
 const getMonthStartEnd = () => {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth();
-  const startDate = new Date(year, month, 1);
+  const startDate = '2025-01-01'; // Default start date
   const endDate = new Date(year, month + 1, 0);
+  
   const formatDate = (date) => {
     const d = new Date(date);
     let month = '' + (d.getMonth() + 1);
@@ -120,25 +140,37 @@ const getMonthStartEnd = () => {
     if (day.length < 2) day = '0' + day;
     return [year, month, day].join('-');
   };
+
   return {
-    startDate: formatDate(startDate),
+    startDate: startDate,
     endDate: formatDate(endDate),
   };
 };
 
 const AssociateCompanyDetail = () => {
-  const { id } = useParams(); // The company's ID from the URL
+  const { id } = useParams();
+  // ✅ 3. Initialize `useLocation`.
+  const location = useLocation();
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // State for the date filters
-  const [dateFilters, setDateFilters] = useState({
-    fromDate: getMonthStartEnd().startDate,
-    toDate: getMonthStartEnd().endDate,
+  // ✅ 4. Update the `dateFilters` state to read from the URL.
+  const [dateFilters, setDateFilters] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    const fromDate = params.get('fromDate');
+    const toDate = params.get('toDate');
+    
+    // If dates are present in the URL, use them. Otherwise, use the default.
+    if (fromDate && toDate) {
+      return { fromDate, toDate };
+    }
+    return {
+      fromDate: getMonthStartEnd().startDate,
+      toDate: getMonthStartEnd().endDate,
+    };
   });
 
-  // Fetches the company's name for the header
   const fetchCompanyDetails = useCallback(async () => {
     try {
       setLoading(true);
@@ -157,7 +189,6 @@ const AssociateCompanyDetail = () => {
     fetchCompanyDetails();
   }, [fetchCompanyDetails]);
 
-  // Handles date changes from the filter component
   const handleDateChange = (e) => {
     const { name, value } = e.target;
     setDateFilters(prev => ({ ...prev, [name]: value }));
@@ -190,11 +221,6 @@ const AssociateCompanyDetail = () => {
           onDateChange={handleDateChange}
         />
 
-        {/* 
-          ✅ --- THIS IS THE FIX ---
-          The `source` prop is now correctly passed to the child components.
-          The backend expects the format "ModelName:ID" to filter by the polymorphic source field.
-        */}
         <PalletTable 
           source={`AssociateCompany:${id}`} 
           fromDate={dateFilters.fromDate} 
@@ -205,7 +231,6 @@ const AssociateCompanyDetail = () => {
           fromDate={dateFilters.fromDate} 
           toDate={dateFilters.toDate} 
         />
-        {/* ✅ --- END OF FIX --- */}
       </div>
     </div>
   );
