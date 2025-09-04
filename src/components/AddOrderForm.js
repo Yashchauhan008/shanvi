@@ -6,7 +6,7 @@
 
 // const allInventoryItems = [
 //     { name: 'Film White', schemaKey: 'film_white', unit: 'kg' }, { name: 'Film Blue', schemaKey: 'film_blue', unit: 'kg' },
-//     { name: 'Patti Role', schemaKey: 'patti_role', unit: 'kg' }, { name: 'Packing Clip', schemaKey: 'packing_clip', unit: 'kg' },
+//     { name: 'Patti roll', schemaKey: 'patti_roll', unit: 'kg' }, { name: 'Packing Clip', schemaKey: 'packing_clip', unit: 'kg' },
 //     { name: 'Angle Board 24', schemaKey: 'angle_board_24', unit: 'pcs' }, { name: 'Angle Board 32', schemaKey: 'angle_board_32', unit: 'pcs' },
 //     { name: 'Angle Board 36', schemaKey: 'angle_board_36', unit: 'pcs' }, { name: 'Angle Board 39', schemaKey: 'angle_board_39', unit: 'pcs' },
 //     { name: 'Angle Board 48', schemaKey: 'angle_board_48', unit: 'pcs' }, { name: 'Cap Hit', schemaKey: 'cap_hit', unit: 'pcs' },
@@ -218,17 +218,28 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
 
+// ✅ --- THIS IS THE FIX ---
+// The "Patti Roll" object was missing and has been added back.
 const allInventoryItems = [
-    { name: 'Film White', schemaKey: 'film_white', unit: 'kg' }, { name: 'Film Blue', schemaKey: 'film_blue', unit: 'kg' },
-    { name: 'Patti Role', schemaKey: 'patti_role', unit: 'kg' }, { name: 'Packing Clip', schemaKey: 'packing_clip', unit: 'kg' },
-    { name: 'Angle Board 24', schemaKey: 'angle_board_24', unit: 'pcs' }, { name: 'Angle Board 32', schemaKey: 'angle_board_32', unit: 'pcs' },
-    { name: 'Angle Board 36', schemaKey: 'angle_board_36', unit: 'pcs' }, { name: 'Angle Board 39', schemaKey: 'angle_board_39', unit: 'pcs' },
-    { name: 'Angle Board 48', schemaKey: 'angle_board_48', unit: 'pcs' }, { name: 'Cap Hit', schemaKey: 'cap_hit', unit: 'pcs' },
-    { name: 'Cap Simple', schemaKey: 'cap_simple', unit: 'pcs' }, { name: 'Firmshit', schemaKey: 'firmshit', unit: 'pcs' },
-    { name: 'Thermocol', schemaKey: 'thermocol', unit: 'pcs' }, { name: 'Mettle Angle', schemaKey: 'mettle_angle', unit: 'pcs' },
-    { name: 'Black Cover', schemaKey: 'black_cover', unit: 'pcs' }, { name: 'Patiya', schemaKey: 'patiya', unit: 'pcs' },
+    { name: 'Film White', schemaKey: 'film_white', unit: 'kg' },
+    { name: 'Film Blue', schemaKey: 'film_blue', unit: 'kg' },
+    { name: 'Patti Roll', schemaKey: 'patti_roll', unit: 'kg' }, // <-- CORRECTED
+    { name: 'Packing Clip', schemaKey: 'packing_clip', unit: 'kg' },
+    { name: 'Angle Board 24', schemaKey: 'angle_board_24', unit: 'pcs' },
+    { name: 'Angle Board 32', schemaKey: 'angle_board_32', unit: 'pcs' },
+    { name: 'Angle Board 36', schemaKey: 'angle_board_36', unit: 'pcs' },
+    { name: 'Angle Board 39', schemaKey: 'angle_board_39', unit: 'pcs' },
+    { name: 'Angle Board 48', schemaKey: 'angle_board_48', unit: 'pcs' },
+    { name: 'Cap Hit', schemaKey: 'cap_hit', unit: 'pcs' },
+    { name: 'Cap Simple', schemaKey: 'cap_simple', unit: 'pcs' },
+    { name: 'Firmshit', schemaKey: 'firmshit', unit: 'pcs' },
+    { name: 'Thermocol', schemaKey: 'thermocol', unit: 'pcs' },
+    { name: 'Mettle Angle', schemaKey: 'mettle_angle', unit: 'pcs' },
+    { name: 'Black Cover', schemaKey: 'black_cover', unit: 'pcs' },
+    { name: 'Patiya', schemaKey: 'patiya', unit: 'pcs' },
     { name: 'Plypatia', schemaKey: 'plypatia', unit: 'pcs' },
 ];
+// ✅ --- END OF FIX ---
 
 const getTodayDateString = () => new Date().toISOString().split('T')[0];
 
@@ -316,7 +327,12 @@ const AddOrderForm = ({ onSave, onClose, isSubmitting }) => {
   const handlePalletChange = (id, field, value) => setPalletRows(palletRows.map(row => (row.id === id ? { ...row, [field]: value } : row)));
 
   const handleInventoryChange = (schemaKey, value) => {
-    const sanitizedValue = value.replace(/[^0-9.+\s]/g, '');
+    let sanitizedValue;
+    if (schemaKey.startsWith('cap_')) {
+      sanitizedValue = value.replace(/[^0-9+\s]/g, '');
+    } else {
+      sanitizedValue = value.replace(/[^0-9.]/g, '');
+    }
     setInventory(prev => ({ ...prev, [schemaKey]: sanitizedValue }));
   };
 
@@ -396,7 +412,7 @@ const AddOrderForm = ({ onSave, onClose, isSubmitting }) => {
                   type="text"
                   value={inventory[item.schemaKey] || ''}
                   onChange={(e) => handleInventoryChange(item.schemaKey, e.target.value)}
-                  placeholder="e.g., 50.5 or 20+30.5"
+                  placeholder={item.schemaKey.startsWith('cap_') ? "e.g., 50+20" : "e.g., 50.5"}
                   inputMode="decimal"
                 />
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"><span className="text-gray-500 dark:text-gray-400 text-sm">{item.unit}</span></div>

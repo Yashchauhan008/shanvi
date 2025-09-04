@@ -19,7 +19,7 @@
 //       // Include all inventory items
 //       'Film White (kg)': order.film_white,
 //       'Film Blue (kg)': order.film_blue,
-//       'Patti Role (kg)': order.patti_role,
+//       'Patti roll (kg)': order.patti_roll,
 //       'Packing Clip (kg)': order.packing_clip,
 //       'Angle Board 24 (pcs)': order.angle_board_24,
 //       'Angle Board 32 (pcs)': order.angle_board_32,
@@ -83,7 +83,7 @@ export const exportToExcel = (apiData, fileName) => {
       // Include all numeric inventory items
       'Film White (pcs)': order.film_white,
       'Film Blue (pcs)': order.film_blue,
-      'Patti Role (pcs)': order.patti_role,
+      'Patti roll (pcs)': order.patti_roll,
       'Packing Clip (pcs)': order.packing_clip,
       'Angle Board 24 (pcs)': order.angle_board_24,
       'Angle Board 32 (pcs)': order.angle_board_32,

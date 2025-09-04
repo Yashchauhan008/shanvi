@@ -6,7 +6,7 @@
 // const inventoryFields = [
 //   { key: 'film_white', name: 'Film White' },
 //   { key: 'film_blue', name: 'Film Blue' },
-//   { key: 'patti_role', name: 'Patti Role' },
+//   { key: 'patti_roll', name: 'Patti roll' },
 //   { key: 'packing_clip', name: 'Packing Clip' },
 //   { key: 'angle_board_24', name: 'Angle Board 24' },
 //   { key: 'angle_board_32', name: 'Angle Board 32' },
@@ -136,7 +136,7 @@ import { DocumentTextIcon } from '@heroicons/react/24/outline';
 const inventoryFields = [
   { key: 'film_white', name: 'Film White' },
   { key: 'film_blue', name: 'Film Blue' },
-  { key: 'patti_role', name: 'Patti Role' },
+  { key: 'patti_roll', name: 'Patti roll' },
   { key: 'packing_clip', name: 'Packing Clip' },
   { key: 'angle_board_24', name: 'Angle Board 24' },
   { key: 'angle_board_32', name: 'Angle Board 32' },
