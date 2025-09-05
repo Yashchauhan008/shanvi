@@ -315,8 +315,25 @@ const AddOrderForm = ({ onSave, onClose, isSubmitting }) => {
   const removePalletRow = (id) => setPalletRows(palletRows.filter(row => row.id !== id));
   const handlePalletChange = (id, field, value) => setPalletRows(palletRows.map(row => (row.id === id ? { ...row, [field]: value } : row)));
 
+  // const handleInventoryChange = (schemaKey, value) => {
+  //   const sanitizedValue = value.replace(/[^0-9.+\s]/g, '');
+  //   setInventory(prev => ({ ...prev, [schemaKey]: sanitizedValue }));
+  // };
+
   const handleInventoryChange = (schemaKey, value) => {
-    const sanitizedValue = value.replace(/[^0-9.+\s]/g, '');
+    let sanitizedValue;
+    
+    // ✅ FIX: Check if the field is a CAP field
+    if (schemaKey.startsWith('cap_')) {
+      // Allow numbers, plus signs, spaces, and decimals for CAP fields
+      sanitizedValue = value.replace(/[^0-9.+\s]/g, '');
+    } else {
+      // For all other fields, allow numbers and a decimal point up to two places
+      const match = value.match(/^\d*(\.\d{0,2})?$/);
+      sanitizedValue = match ? match[0] : inventory[schemaKey] || ''; // Fallback to previous value on invalid input
+    }
+    
+    // For EditOrderForm, you would use `setFormData` instead of `setInventory`
     setInventory(prev => ({ ...prev, [schemaKey]: sanitizedValue }));
   };
 
@@ -385,7 +402,7 @@ const AddOrderForm = ({ onSave, onClose, isSubmitting }) => {
         <button type="button" onClick={addPalletRow} className="mt-3 flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"><PlusIcon className="h-4 w-4" /> Add More Pallets</button>
       </div>
 
-      <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+      {/* <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
         <h3 className="text-md font-semibold text-gray-800 dark:text-gray-200">Inventory Items (Optional)</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-5 mt-2 max-h-60 overflow-y-auto pr-2">
           {allInventoryItems.map(item => (
@@ -398,6 +415,29 @@ const AddOrderForm = ({ onSave, onClose, isSubmitting }) => {
                   onChange={(e) => handleInventoryChange(item.schemaKey, e.target.value)}
                   placeholder="e.g., 50.5 or 20+30.5"
                   inputMode="decimal"
+                />
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"><span className="text-gray-500 dark:text-gray-400 text-sm">{item.unit}</span></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div> */}
+
+<div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <h3 className="text-md font-semibold text-gray-800 dark:text-gray-200">Inventory Items (Optional)</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-5 mt-2 max-h-60 overflow-y-auto pr-2">
+          {allInventoryItems.map(item => (
+            <div key={item.schemaKey}>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{item.name}</label>
+              <div className="relative mt-1">
+                <FormInput
+                  // ✅ FIX: Change type to "text"
+                  type="text"
+                  value={inventory[item.schemaKey] || ''}
+                  onChange={(e) => handleInventoryChange(item.schemaKey, e.target.value)}
+                  placeholder="e.g., 50.5 or 20+30.5"
+                  // Use "decimal" for most, but "text" for CAPs to allow '+'
+                  inputMode={item.schemaKey.startsWith('cap_') ? 'text' : 'decimal'}
                 />
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"><span className="text-gray-500 dark:text-gray-400 text-sm">{item.unit}</span></div>
               </div>
