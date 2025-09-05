@@ -6,6 +6,8 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 
+import { Analytics } from '@vercel/analytics/react';
+
 // Import Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -50,6 +52,7 @@ function App() {
           <Route path="/" element={<Navigate to="/dashboard" />} />
         </Routes>
       </Router>
+      <Analytics />
     </AuthProvider>
     </ThemeProvider>
   );
