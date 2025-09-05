@@ -218,17 +218,37 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
 
+// const allInventoryItems = [
+//     { name: 'Film White', schemaKey: 'film_white', unit: 'kg' }, { name: 'Film Blue', schemaKey: 'film_blue', unit: 'kg' },
+//     { name: 'Patti Role', schemaKey: 'patti_role', unit: 'kg' }, { name: 'Packing Clip', schemaKey: 'packing_clip', unit: 'kg' },
+//     { name: 'Angle Board 24', schemaKey: 'angle_board_24', unit: 'pcs' }, { name: 'Angle Board 32', schemaKey: 'angle_board_32', unit: 'pcs' },
+//     { name: 'Angle Board 36', schemaKey: 'angle_board_36', unit: 'pcs' }, { name: 'Angle Board 39', schemaKey: 'angle_board_39', unit: 'pcs' },
+//     { name: 'Angle Board 48', schemaKey: 'angle_board_48', unit: 'pcs' }, { name: 'Cap Hit', schemaKey: 'cap_hit', unit: 'pcs' },
+//     { name: 'Cap Simple', schemaKey: 'cap_simple', unit: 'pcs' }, { name: 'Firmshit', schemaKey: 'firmshit', unit: 'pcs' },
+//     { name: 'Thermocol', schemaKey: 'thermocol', unit: 'pcs' }, { name: 'Mettle Angle', schemaKey: 'mettle_angle', unit: 'pcs' },
+//     { name: 'Black Cover', schemaKey: 'black_cover', unit: 'pcs' }, { name: 'Patiya', schemaKey: 'patiya', unit: 'pcs' },
+//     { name: 'Plypatia', schemaKey: 'plypatia', unit: 'pcs' },
+// ];
 const allInventoryItems = [
-    { name: 'Film White', schemaKey: 'film_white', unit: 'kg' }, { name: 'Film Blue', schemaKey: 'film_blue', unit: 'kg' },
-    { name: 'Patti Role', schemaKey: 'patti_role', unit: 'kg' }, { name: 'Packing Clip', schemaKey: 'packing_clip', unit: 'kg' },
-    { name: 'Angle Board 24', schemaKey: 'angle_board_24', unit: 'pcs' }, { name: 'Angle Board 32', schemaKey: 'angle_board_32', unit: 'pcs' },
-    { name: 'Angle Board 36', schemaKey: 'angle_board_36', unit: 'pcs' }, { name: 'Angle Board 39', schemaKey: 'angle_board_39', unit: 'pcs' },
-    { name: 'Angle Board 48', schemaKey: 'angle_board_48', unit: 'pcs' }, { name: 'Cap Hit', schemaKey: 'cap_hit', unit: 'pcs' },
-    { name: 'Cap Simple', schemaKey: 'cap_simple', unit: 'pcs' }, { name: 'Firmshit', schemaKey: 'firmshit', unit: 'pcs' },
-    { name: 'Thermocol', schemaKey: 'thermocol', unit: 'pcs' }, { name: 'Mettle Angle', schemaKey: 'mettle_angle', unit: 'pcs' },
-    { name: 'Black Cover', schemaKey: 'black_cover', unit: 'pcs' }, { name: 'Patiya', schemaKey: 'patiya', unit: 'pcs' },
-    { name: 'Plypatia', schemaKey: 'plypatia', unit: 'pcs' },
+  { name: 'Film White', unit: 'kg', schemaKey: 'film_white' }, 
+  { name: 'Film Blue', unit: 'kg', schemaKey: 'film_blue' },
+  { name: 'Patti Roll', schemaKey: 'patti_role', unit: 'kg' }, // ✅ Changed
+  { name: 'Packing Clip', unit: 'kg', schemaKey: 'packing_clip' },
+  { name: 'Angle Board 24', unit: 'pcs', schemaKey: 'angle_board_24' }, 
+  { name: 'Angle Board 32', unit: 'pcs', schemaKey: 'angle_board_32' },
+  { name: 'Angle Board 36', unit: 'pcs', schemaKey: 'angle_board_36' }, 
+  { name: 'Angle Board 39', unit: 'pcs', schemaKey: 'angle_board_39' },
+  { name: 'Angle Board 48', unit: 'pcs', schemaKey: 'angle_board_48' }, 
+  { name: 'Hit Bag', schemaKey: 'cap_hit', unit: 'pcs' }, // ✅ Changed
+  { name: 'Sadi Bag', schemaKey: 'cap_simple', unit: 'pcs' }, // ✅ Changed
+  { name: 'Firmshit', unit: 'pcs', schemaKey: 'firmshit' }, 
+  { name: 'Thermocol', unit: 'pcs', schemaKey: 'thermocol' }, 
+  { name: 'Metal Angle', schemaKey: 'mettle_angle', unit: 'pcs' }, // ✅ Changed
+  { name: 'Black Cover', unit: 'pcs', schemaKey: 'black_cover' }, 
+  { name: 'Patiya', unit: 'pcs', schemaKey: 'patiya' }, 
+  { name: 'Plypatia', unit: 'pcs', schemaKey: 'plypatia' },
 ];
+
 
 const getTodayDateString = () => new Date().toISOString().split('T')[0];
 
@@ -435,7 +455,7 @@ const AddOrderForm = ({ onSave, onClose, isSubmitting }) => {
                   type="text"
                   value={inventory[item.schemaKey] || ''}
                   onChange={(e) => handleInventoryChange(item.schemaKey, e.target.value)}
-                  placeholder="e.g., 50.5 or 20+30.5"
+                  placeholder="50.5"
                   // Use "decimal" for most, but "text" for CAPs to allow '+'
                   inputMode={item.schemaKey.startsWith('cap_') ? 'text' : 'decimal'}
                 />

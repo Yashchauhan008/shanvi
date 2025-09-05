@@ -83,18 +83,38 @@
 
 import React, { useState } from 'react';
 
-// ... (allInventoryItems array remains the same)
+// const allInventoryItems = [
+//     { name: 'Film White', unit: 'kg', schemaKey: 'film_white' }, { name: 'Film Blue', unit: 'kg', schemaKey: 'film_blue' },
+//     { name: 'Patti Role', unit: 'kg', schemaKey: 'patti_role' }, { name: 'Packing Clip', unit: 'kg', schemaKey: 'packing_clip' },
+//     { name: 'Angle Board 24', unit: 'pcs', schemaKey: 'angle_board_24' }, { name: 'Angle Board 32', unit: 'pcs', schemaKey: 'angle_board_32' },
+//     { name: 'Angle Board 36', unit: 'pcs', schemaKey: 'angle_board_36' }, { name: 'Angle Board 39', unit: 'pcs', schemaKey: 'angle_board_39' },
+//     { name: 'Angle Board 48', unit: 'pcs', schemaKey: 'angle_board_48' }, { name: 'Cap Hit', unit: 'pcs', schemaKey: 'cap_hit' },
+//     { name: 'Cap Simple', unit: 'pcs', schemaKey: 'cap_simple' }, { name: 'Firmshit', unit: 'pcs', schemaKey: 'firmshit' },
+//     { name: 'Thermocol', unit: 'pcs', schemaKey: 'thermocol' }, { name: 'Mettle Angle', unit: 'pcs', schemaKey: 'mettle_angle' },
+//     { name: 'Black Cover', unit: 'pcs', schemaKey: 'black_cover' }, { name: 'Patiya', unit: 'pcs', schemaKey: 'patiya' },
+//     { name: 'Plypatia', unit: 'pcs', schemaKey: 'plypatia' },
+// ];
+
 const allInventoryItems = [
-    { name: 'Film White', unit: 'kg', schemaKey: 'film_white' }, { name: 'Film Blue', unit: 'kg', schemaKey: 'film_blue' },
-    { name: 'Patti Role', unit: 'kg', schemaKey: 'patti_role' }, { name: 'Packing Clip', unit: 'kg', schemaKey: 'packing_clip' },
-    { name: 'Angle Board 24', unit: 'pcs', schemaKey: 'angle_board_24' }, { name: 'Angle Board 32', unit: 'pcs', schemaKey: 'angle_board_32' },
-    { name: 'Angle Board 36', unit: 'pcs', schemaKey: 'angle_board_36' }, { name: 'Angle Board 39', unit: 'pcs', schemaKey: 'angle_board_39' },
-    { name: 'Angle Board 48', unit: 'pcs', schemaKey: 'angle_board_48' }, { name: 'Cap Hit', unit: 'pcs', schemaKey: 'cap_hit' },
-    { name: 'Cap Simple', unit: 'pcs', schemaKey: 'cap_simple' }, { name: 'Firmshit', unit: 'pcs', schemaKey: 'firmshit' },
-    { name: 'Thermocol', unit: 'pcs', schemaKey: 'thermocol' }, { name: 'Mettle Angle', unit: 'pcs', schemaKey: 'mettle_angle' },
-    { name: 'Black Cover', unit: 'pcs', schemaKey: 'black_cover' }, { name: 'Patiya', unit: 'pcs', schemaKey: 'patiya' },
-    { name: 'Plypatia', unit: 'pcs', schemaKey: 'plypatia' },
+  { name: 'Film White', unit: 'kg', schemaKey: 'film_white' }, 
+  { name: 'Film Blue', unit: 'kg', schemaKey: 'film_blue' },
+  { name: 'Patti Roll', schemaKey: 'patti_role', unit: 'kg' }, // ✅ Changed
+  { name: 'Packing Clip', unit: 'kg', schemaKey: 'packing_clip' },
+  { name: 'Angle Board 24', unit: 'pcs', schemaKey: 'angle_board_24' }, 
+  { name: 'Angle Board 32', unit: 'pcs', schemaKey: 'angle_board_32' },
+  { name: 'Angle Board 36', unit: 'pcs', schemaKey: 'angle_board_36' }, 
+  { name: 'Angle Board 39', unit: 'pcs', schemaKey: 'angle_board_39' },
+  { name: 'Angle Board 48', unit: 'pcs', schemaKey: 'angle_board_48' }, 
+  { name: 'Hit Bag', schemaKey: 'cap_hit', unit: 'pcs' }, // ✅ Changed
+  { name: 'Sadi Bag', schemaKey: 'cap_simple', unit: 'pcs' }, // ✅ Changed
+  { name: 'Firmshit', unit: 'pcs', schemaKey: 'firmshit' }, 
+  { name: 'Thermocol', unit: 'pcs', schemaKey: 'thermocol' }, 
+  { name: 'Metal Angle', schemaKey: 'mettle_angle', unit: 'pcs' }, // ✅ Changed
+  { name: 'Black Cover', unit: 'pcs', schemaKey: 'black_cover' }, 
+  { name: 'Patiya', unit: 'pcs', schemaKey: 'patiya' }, 
+  { name: 'Plypatia', unit: 'pcs', schemaKey: 'plypatia' },
 ];
+
 
 
 const AddInventoryForm = ({ onSave, onClose, isSubmitting }) => {

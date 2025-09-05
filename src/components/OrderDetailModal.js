@@ -136,23 +136,22 @@ import { DocumentTextIcon } from '@heroicons/react/24/outline';
 const inventoryFields = [
   { key: 'film_white', name: 'Film White' },
   { key: 'film_blue', name: 'Film Blue' },
-  { key: 'patti_role', name: 'Patti Role' },
+  { key: 'patti_role', name: 'Patti Roll' }, // Changed
   { key: 'packing_clip', name: 'Packing Clip' },
   { key: 'angle_board_24', name: 'Angle Board 24' },
   { key: 'angle_board_32', name: 'Angle Board 32' },
   { key: 'angle_board_36', name: 'Angle Board 36' },
   { key: 'angle_board_39', name: 'Angle Board 39' },
   { key: 'angle_board_48', name: 'Angle Board 48' },
-  { key: 'cap_hit', name: 'Cap Hit' },
-  { key: 'cap_simple', name: 'Cap Simple' },
+  { key: 'cap_hit', name: 'Hit Bag' }, // Changed
+  { key: 'cap_simple', name: 'Sadi Bag' }, // Changed
   { key: 'firmshit', name: 'Firmshit' },
   { key: 'thermocol', name: 'Thermocol' },
-  { key: 'mettle_angle', name: 'Mettle Angle' },
+  { key: 'mettle_angle', name: 'Metal Angle' }, // Changed
   { key: 'black_cover', name: 'Black Cover' },
   { key: 'patiya', name: 'Patiya' },
   { key: 'plypatia', name: 'Plypatia' },
 ];
-
 const OrderDetailModal = ({ isOpen, onClose, order, onGenerateInvoice }) => {
   if (!order) return null;
 

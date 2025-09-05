@@ -329,7 +329,14 @@ import DateRangeFilter from '../components/DateRangeFilter';
 import EditInventoryForm from '../components/EditInventoryForm'; // ✅ Import the new form
 
 const formatItemName = (key) => {
-  return key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+  switch (key) {
+    case 'patti_role': return 'Patti Roll';
+    case 'mettle_angle': return 'Metal Angle';
+    case 'cap_hit': return 'Hit Bag';
+    case 'cap_simple': return 'Sadi Bag';
+    default:
+      return key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+  }
 };
 
 const getInitialDateRange = () => {

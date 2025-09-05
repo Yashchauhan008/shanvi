@@ -81,25 +81,20 @@ export const exportToExcel = (apiData, fileName) => {
       'Vehicle Number': order.vehicle_number,
       'Pallet Items': itemsSummary,
       // Include all numeric inventory items
-      'Film White (pcs)': order.film_white,
-      'Film Blue (pcs)': order.film_blue,
-      'Patti Role (pcs)': order.patti_role,
-      'Packing Clip (pcs)': order.packing_clip,
+      'Film White (kg)': order.film_white,
+      'Film Blue (kg)': order.film_blue,
+      'Patti Roll (kg)': order.patti_role, // Changed
+      'Packing Clip (kg)': order.packing_clip,
       'Angle Board 24 (pcs)': order.angle_board_24,
       'Angle Board 32 (pcs)': order.angle_board_32,
       'Angle Board 36 (pcs)': order.angle_board_36,
       'Angle Board 39 (pcs)': order.angle_board_39,
       'Angle Board 48 (pcs)': order.angle_board_48,
-      
-      // ✅ --- THIS IS THE FIX ---
-      // Correctly include the string values for CAP fields.
-      'Cap Hit (pcs)': order.cap_hit,
-      'Cap Simple (pcs)': order.cap_simple,
-      // ✅ --- END OF FIX ---
-
+      'Hit Bag (pcs)': order.cap_hit, // Changed
+      'Sadi Bag (pcs)': order.cap_simple, // Changed
       'Firmshit (pcs)': order.firmshit,
       'Thermocol (pcs)': order.thermocol,
-      'Mettle Angle (pcs)': order.mettle_angle,
+      'Metal Angle (pcs)': order.mettle_angle, // Changed
       'Black Cover (pcs)': order.black_cover,
       'Patiya (pcs)': order.patiya,
       'Plypatia (pcs)': order.plypatia,

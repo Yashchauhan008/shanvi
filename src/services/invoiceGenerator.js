@@ -213,17 +213,38 @@ const getInventoryValue = (order, key) => {
 // ✅ --- END OF FIX ---
 
 // This helper array defines all possible inventory fields and their display names.
+// const allInventoryItems = [
+//   { key: 'film_white', name: 'Film White' }, { key: 'film_blue', name: 'Film Blue' },
+//   { key: 'patti_role', name: 'Patti Role' }, { key: 'packing_clip', name: 'Packing Clip' },
+//   { key: 'angle_board_24', name: 'Angle Board 24' }, { key: 'angle_board_32', name: 'Angle Board 32' },
+//   { key: 'angle_board_36', name: 'Angle Board 36' }, { key: 'angle_board_39', name: 'Angle Board 39' },
+//   { key: 'angle_board_48', name: 'Angle Board 48' }, { key: 'cap_hit', name: 'Cap Hit' },
+//   { key: 'cap_simple', name: 'Cap Simple' }, { key: 'firmshit', name: 'Firmshit' },
+//   { key: 'thermocol', name: 'Thermocol' }, { key: 'mettle_angle', name: 'Mettle Angle' },
+//   { key: 'black_cover', name: 'Black Cover' }, { key: 'patiya', name: 'Patiya' },
+//   { key: 'plypatia', name: 'Plypatia' },
+// ];
+
 const allInventoryItems = [
-  { key: 'film_white', name: 'Film White' }, { key: 'film_blue', name: 'Film Blue' },
-  { key: 'patti_role', name: 'Patti Role' }, { key: 'packing_clip', name: 'Packing Clip' },
-  { key: 'angle_board_24', name: 'Angle Board 24' }, { key: 'angle_board_32', name: 'Angle Board 32' },
-  { key: 'angle_board_36', name: 'Angle Board 36' }, { key: 'angle_board_39', name: 'Angle Board 39' },
-  { key: 'angle_board_48', name: 'Angle Board 48' }, { key: 'cap_hit', name: 'Cap Hit' },
-  { key: 'cap_simple', name: 'Cap Simple' }, { key: 'firmshit', name: 'Firmshit' },
-  { key: 'thermocol', name: 'Thermocol' }, { key: 'mettle_angle', name: 'Mettle Angle' },
-  { key: 'black_cover', name: 'Black Cover' }, { key: 'patiya', name: 'Patiya' },
-  { key: 'plypatia', name: 'Plypatia' },
+  { name: 'Film White', unit: 'kg', schemaKey: 'film_white' }, 
+  { name: 'Film Blue', unit: 'kg', schemaKey: 'film_blue' },
+  { name: 'Patti Roll', schemaKey: 'patti_role', unit: 'kg' }, // ✅ Changed
+  { name: 'Packing Clip', unit: 'kg', schemaKey: 'packing_clip' },
+  { name: 'Angle Board 24', unit: 'pcs', schemaKey: 'angle_board_24' }, 
+  { name: 'Angle Board 32', unit: 'pcs', schemaKey: 'angle_board_32' },
+  { name: 'Angle Board 36', unit: 'pcs', schemaKey: 'angle_board_36' }, 
+  { name: 'Angle Board 39', unit: 'pcs', schemaKey: 'angle_board_39' },
+  { name: 'Angle Board 48', unit: 'pcs', schemaKey: 'angle_board_48' }, 
+  { name: 'Hit Bag', schemaKey: 'cap_hit', unit: 'pcs' }, // ✅ Changed
+  { name: 'Sadi Bag', schemaKey: 'cap_simple', unit: 'pcs' }, // ✅ Changed
+  { name: 'Firmshit', u12nit: 'pcs', schemaKey: 'firmshit' }, 
+  { name: 'Thermocol', unit: 'pcs', schemaKey: 'thermocol' }, 
+  { name: 'Metal Angle', schemaKey: 'mettle_angle', unit: 'pcs' }, // ✅ Changed
+  { name: 'Black Cover', unit: 'pcs', schemaKey: 'black_cover' }, 
+  { name: 'Patiya', unit: 'pcs', schemaKey: 'patiya' }, 
+  { name: 'Plypatia', unit: 'pcs', schemaKey: 'plypatia' },
 ];
+
 
 export const generateInvoicePdf = (orderData) => {
   const doc = new jsPDF();
@@ -260,13 +281,13 @@ export const generateInvoicePdf = (orderData) => {
   doc.text(orderData.factory_id.name, leftColX, 70);
   const rightColX = 130;
   doc.setFont('helvetica', 'bold');
-  doc.text('Chalan No:', rightColX, 50);
+  doc.text('Challan No:', rightColX, 50);
   doc.text('Order Date:', rightColX, 56);
   doc.text('Vehicle:', rightColX, 62);
   doc.text('Vehicle No:', rightColX, 68);
   doc.setFont('helvetica', 'normal');
-  const chalanNumber = orderData.customOrderId.split('-').pop() || orderData.customOrderId;
-  doc.text(chalanNumber, rightColX + 30, 50);
+  const challanNumber = orderData.customOrderId.split('-').pop() || orderData.customOrderId;
+  doc.text(challanNumber, rightColX + 30, 50);
   doc.text(new Date(orderData.date).toLocaleDateString('en-GB'), rightColX + 30, 56);
   doc.text(orderData.vehicle || 'N/A', rightColX + 30, 62);
   doc.text(orderData.vehicle_number || 'N/A', rightColX + 30, 68);
