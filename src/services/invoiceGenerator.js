@@ -195,56 +195,38 @@
 //   doc.output('dataurlnewwindow');
 // };
 
-
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-// ✅ --- THIS IS THE FIX ---
-// This helper function now correctly handles both string and number types.
-const getInventoryValue = (order, key) => {
-  const value = order[key];
-  // If it's a string (like for CAPs), return it if it's not '0' or empty.
+// ✅ --- THIS IS THE FIX (Part 1) ---
+// The function now correctly accepts the schemaKey to look up the property on the order object.
+const getInventoryValue = (order, schemaKey) => {
+  const value = order[schemaKey];
   if (typeof value === 'string') {
     return value && value !== '0' ? value : '';
   }
-  // If it's a number, return it if it's greater than 0.
   return value > 0 ? value : '';
 };
-// ✅ --- END OF FIX ---
-
-// This helper array defines all possible inventory fields and their display names.
-// const allInventoryItems = [
-//   { key: 'film_white', name: 'Film White' }, { key: 'film_blue', name: 'Film Blue' },
-//   { key: 'patti_role', name: 'Patti Role' }, { key: 'packing_clip', name: 'Packing Clip' },
-//   { key: 'angle_board_24', name: 'Angle Board 24' }, { key: 'angle_board_32', name: 'Angle Board 32' },
-//   { key: 'angle_board_36', name: 'Angle Board 36' }, { key: 'angle_board_39', name: 'Angle Board 39' },
-//   { key: 'angle_board_48', name: 'Angle Board 48' }, { key: 'cap_hit', name: 'Cap Hit' },
-//   { key: 'cap_simple', name: 'Cap Simple' }, { key: 'firmshit', name: 'Firmshit' },
-//   { key: 'thermocol', name: 'Thermocol' }, { key: 'mettle_angle', name: 'Mettle Angle' },
-//   { key: 'black_cover', name: 'Black Cover' }, { key: 'patiya', name: 'Patiya' },
-//   { key: 'plypatia', name: 'Plypatia' },
-// ];
 
 const allInventoryItems = [
   { name: 'Film White', unit: 'kg', schemaKey: 'film_white' }, 
   { name: 'Film Blue', unit: 'kg', schemaKey: 'film_blue' },
-  { name: 'Patti Roll', schemaKey: 'patti_role', unit: 'kg' }, // ✅ Changed
+  { name: 'Patti Roll', schemaKey: 'patti_role', unit: 'kg' },
   { name: 'Packing Clip', unit: 'kg', schemaKey: 'packing_clip' },
   { name: 'Angle Board 24', unit: 'pcs', schemaKey: 'angle_board_24' }, 
   { name: 'Angle Board 32', unit: 'pcs', schemaKey: 'angle_board_32' },
   { name: 'Angle Board 36', unit: 'pcs', schemaKey: 'angle_board_36' }, 
   { name: 'Angle Board 39', unit: 'pcs', schemaKey: 'angle_board_39' },
   { name: 'Angle Board 48', unit: 'pcs', schemaKey: 'angle_board_48' }, 
-  { name: 'Hit Bag', schemaKey: 'cap_hit', unit: 'pcs' }, // ✅ Changed
-  { name: 'Sadi Bag', schemaKey: 'cap_simple', unit: 'pcs' }, // ✅ Changed
-  { name: 'Firmshit', u12nit: 'pcs', schemaKey: 'firmshit' }, 
+  { name: 'Hit Bag', schemaKey: 'cap_hit', unit: 'pcs' },
+  { name: 'Sadi Bag', schemaKey: 'cap_simple', unit: 'pcs' },
+  { name: 'Firmshit', unit: 'pcs', schemaKey: 'firmshit' }, 
   { name: 'Thermocol', unit: 'pcs', schemaKey: 'thermocol' }, 
-  { name: 'Metal Angle', schemaKey: 'mettle_angle', unit: 'pcs' }, // ✅ Changed
+  { name: 'Metal Angle', schemaKey: 'mettle_angle', unit: 'pcs' },
   { name: 'Black Cover', unit: 'pcs', schemaKey: 'black_cover' }, 
   { name: 'Patiya', unit: 'pcs', schemaKey: 'patiya' }, 
   { name: 'Plypatia', unit: 'pcs', schemaKey: 'plypatia' },
 ];
-
 
 export const generateInvoicePdf = (orderData) => {
   const doc = new jsPDF();
@@ -253,7 +235,8 @@ export const generateInvoicePdf = (orderData) => {
   const secondaryColor = '#5c6bc0';
   const textColor = '#212121';
 
-  // --- 1. Header Section (Unchanged) ---
+  // ... (Header, Meta-Info, Checkboxes, and Pallet Table sections are unchanged)
+  // --- 1. Header Section ---
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(20);
   doc.setTextColor(primaryColor);
@@ -267,7 +250,7 @@ export const generateInvoicePdf = (orderData) => {
   doc.setDrawColor(secondaryColor);
   doc.line(15, 40, 195, 40);
 
-  // --- 2. Meta-Information Section (Unchanged) ---
+  // --- 2. Meta-Information Section ---
   doc.setFontSize(11);
   doc.setTextColor(textColor);
   const leftColX = 15;
@@ -292,7 +275,7 @@ export const generateInvoicePdf = (orderData) => {
   doc.text(orderData.vehicle || 'N/A', rightColX + 30, 62);
   doc.text(orderData.vehicle_number || 'N/A', rightColX + 30, 68);
 
-  // --- 3. Checkboxes (Unchanged) ---
+  // --- 3. Checkboxes ---
   const checkboxY = 85;
   doc.setFontSize(10);
   doc.setDrawColor(textColor);
@@ -301,7 +284,7 @@ export const generateInvoicePdf = (orderData) => {
   doc.rect(leftColX, checkboxY + 8, 4, 4);
   doc.text('Duplicate Copy', leftColX + 7, checkboxY + 11);
 
-  // --- 4. Pallet Items Table (Unchanged) ---
+  // --- 4. Pallet Items Table ---
   const tableStartY = checkboxY + 20;
   let palletTableData = orderData.items.map(item => [
     item.paletSize,
@@ -329,31 +312,33 @@ export const generateInvoicePdf = (orderData) => {
     }
   });
 
-  // ✅ --- 5. Two-Column Inventory Details (with corrected logic) ---
+  // --- 5. Two-Column Inventory Details ---
   const inventoryTableY = doc.lastAutoTable.finalY + 2;
   const numInventoryRows = Math.ceil(allInventoryItems.length / 2);
   const leftTableBody = [];
   for (let i = 0; i < numInventoryRows; i++) {
     const item = allInventoryItems[i];
     if (item) {
-      // Use the helper function to get the correct value (string or number)
-      const quantity = getInventoryValue(orderData, item.key);
+      // ✅ --- THIS IS THE FIX (Part 2) ---
+      // Pass the correct property `item.schemaKey` to the helper function.
+      const quantity = getInventoryValue(orderData, item.schemaKey);
       leftTableBody.push([item.name, quantity]);
     }
   }
-  leftTableBody.push(['', '']); // Add extra empty row
+  leftTableBody.push(['', '']);
 
   const rightTableBody = [];
   for (let i = numInventoryRows; i < allInventoryItems.length; i++) {
     const item = allInventoryItems[i];
     if (item) {
-      // Use the helper function here as well
-      const quantity = getInventoryValue(orderData, item.key);
+      // ✅ --- THIS IS THE FIX (Part 3) ---
+      // Pass the correct property `item.schemaKey` here as well.
+      const quantity = getInventoryValue(orderData, item.schemaKey);
       rightTableBody.push([item.name, quantity]);
     }
   }
   while (rightTableBody.length < leftTableBody.length) {
-    rightTableBody.push(['', '']); // Ensure both tables have the same number of rows
+    rightTableBody.push(['', '']);
   }
 
   const leftMargin = 15;
@@ -385,7 +370,8 @@ export const generateInvoicePdf = (orderData) => {
     columnStyles: { 1: { cellWidth: 15, halign: 'right' } }
   });
 
-  // --- 6. Fixed Bottom Section: Terms & Signature (Unchanged) ---
+  // ... (Footer and PDF generation logic remains unchanged)
+  // --- 6. Fixed Bottom Section: Terms & Signature ---
   const bottomSectionY = doc.internal.pageSize.height - 45;
   doc.setFontSize(9);
   doc.setTextColor(secondaryColor);
@@ -407,7 +393,7 @@ export const generateInvoicePdf = (orderData) => {
   doc.text('For SHANVI ENTERPRISE', 130, signatureY + 8);
   doc.setFontSize(10);
 
-  // --- 7. Set PDF Properties and Generate Output (Unchanged) ---
+  // --- 7. Set PDF Properties and Generate Output ---
   const orderNumber = orderData.customOrderId;
   const date = new Date(orderData.date);
   const day = String(date.getDate()).padStart(2, '0');
