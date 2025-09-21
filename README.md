@@ -1,71 +1,37 @@
-# Getting Started with Create React App
+# 🖥️ Shanvi Enterprise - Inventory Management System (Frontend)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This repository contains the official frontend for the **Shanvi Enterprise Inventory Management System (IMS)**. This React application serves as the primary interface for employees to manage, track, and analyze a live inventory valued at over **₹4 Crore**.
 
-## Available Scripts
+The UI is designed to be functional, intuitive, and efficient, enabling users to perform complex tasks with ease. It communicates securely with the [Shanvi Enterprise Backend](https://github.com/your-username/shanvi-server ).
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## ✨ Key Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- 🔐 **Role-Based Views:** The interface dynamically adapts based on the logged-in user's role (Admin, Manager, etc.), showing only relevant data and controls.
+- 📊 **Interactive Dashboard:** A central dashboard provides key metrics at a glance, including stock value, low-stock alerts, and recent activity, often with charts and graphs.
+- 📦 **Full CRUD Operations:** Provides user-friendly forms and tables for adding, viewing, updating, and deleting inventory items, suppliers, and orders.
+- 🔍 **Advanced Search & Filtering:** Allows users to quickly find specific items or data using powerful and intuitive search and filtering capabilities.
+- 📱 **Responsive Design:** Ensures that the system is usable on various devices, from large desktop monitors in the office to tablets in the warehouse.
+- ⚡ **Optimized Performance:** Built for speed to handle large datasets efficiently, ensuring a smooth user experience for employees.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## ⚙️ Tech Stack
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+| Category             | Technology / Library                                       |
+| :------------------- | :--------------------------------------------------------- |
+| **Core Library**     | **React** (with Hooks)                                     |
+| **State Management** | **Redux Toolkit / React Context** *(mention your choice)*  |
+| **UI Components**    | **Material-UI / Ant Design / Tailwind CSS** *(mention your choice)* |
+| **Routing**          | **React Router**                                           |
+| **API Communication**| **Axios**                                                  |
+| **Deployment**       | Served via the **Node.js backend** on a **Hostinger VPS**  |
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-# shanvi
+## 👨‍💻 Author
+**Yash Chauhan**
+- Portfolio: [yash-chauhan.vercel.app](https://yash-chauhan.vercel.app )
+- GitHub: [@yashchauhan008](https://github.com/Yashchauhan008 )
+- LinkedIn: [yashchauhan](https://www.linkedin.com/in/yashchauhan008 )
