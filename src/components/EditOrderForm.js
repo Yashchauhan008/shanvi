@@ -3,16 +3,25 @@
 // import { PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
 
 // const allInventoryItems = [
-//     { name: 'Film White', schemaKey: 'film_white', unit: 'kg' }, { name: 'Film Blue', schemaKey: 'film_blue', unit: 'kg' },
-//     { name: 'Patti Role', schemaKey: 'patti_role', unit: 'kg' }, { name: 'Packing Clip', schemaKey: 'packing_clip', unit: 'kg' },
-//     { name: 'Angle Board 24', schemaKey: 'angle_board_24', unit: 'pcs' }, { name: 'Angle Board 32', schemaKey: 'angle_board_32', unit: 'pcs' },
-//     { name: 'Angle Board 36', schemaKey: 'angle_board_36', unit: 'pcs' }, { name: 'Angle Board 39', schemaKey: 'angle_board_39', unit: 'pcs' },
-//     { name: 'Angle Board 48', schemaKey: 'angle_board_48', unit: 'pcs' }, { name: 'Cap Hit', schemaKey: 'cap_hit', unit: 'pcs' },
-//     { name: 'Cap Simple', schemaKey: 'cap_simple', unit: 'pcs' }, { name: 'Firmshit', schemaKey: 'firmshit', unit: 'pcs' },
-//     { name: 'Thermocol', schemaKey: 'thermocol', unit: 'pcs' }, { name: 'Mettle Angle', schemaKey: 'mettle_angle', unit: 'pcs' },
-//     { name: 'Black Cover', schemaKey: 'black_cover', unit: 'pcs' }, { name: 'Patiya', schemaKey: 'patiya', unit: 'pcs' },
-//     { name: 'Plypatia', schemaKey: 'plypatia', unit: 'pcs' },
+//   { name: 'Film White', unit: 'kg', schemaKey: 'film_white' }, 
+//   { name: 'Film Blue', unit: 'kg', schemaKey: 'film_blue' },
+//   { name: 'Patti Roll', schemaKey: 'patti_role', unit: 'kg' }, // ✅ Changed
+//   { name: 'Packing Clip', unit: 'kg', schemaKey: 'packing_clip' },
+//   { name: 'Angle Board 24', unit: 'pcs', schemaKey: 'angle_board_24' }, 
+//   { name: 'Angle Board 32', unit: 'pcs', schemaKey: 'angle_board_32' },
+//   { name: 'Angle Board 36', unit: 'pcs', schemaKey: 'angle_board_36' }, 
+//   { name: 'Angle Board 39', unit: 'pcs', schemaKey: 'angle_board_39' },
+//   { name: 'Angle Board 48', unit: 'pcs', schemaKey: 'angle_board_48' }, 
+//   { name: 'Hit Bag', schemaKey: 'cap_hit', unit: 'pcs' }, // ✅ Changed
+//   { name: 'Sadi Bag', schemaKey: 'cap_simple', unit: 'pcs' }, // ✅ Changed
+//   { name: 'Firmshit', unit: 'pcs', schemaKey: 'firmshit' }, 
+//   { name: 'Thermocol', unit: 'pcs', schemaKey: 'thermocol' }, 
+//   { name: 'Metal Angle', schemaKey: 'mettle_angle', unit: 'pcs' }, // ✅ Changed
+//   { name: 'Black Cover', unit: 'pcs', schemaKey: 'black_cover' }, 
+//   { name: 'Patiya', unit: 'pcs', schemaKey: 'patiya' }, 
+//   { name: 'Plypatia', unit: 'pcs', schemaKey: 'plypatia' },
 // ];
+
 
 // const FormInput = (props) => (
 //   <input {...props} className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 disabled:opacity-50" />
@@ -82,22 +91,24 @@
 //     setFormData(prev => ({ ...prev, [name]: value }));
 //   };
 
+//   // ✅ --- THIS IS THE FIX ---
 //   const handleInventoryChange = (schemaKey, value) => {
 //     let sanitizedValue;
     
-//     // ✅ FIX: Check if the field is a CAP field
 //     if (schemaKey.startsWith('cap_')) {
 //       // Allow numbers, plus signs, spaces, and decimals for CAP fields
 //       sanitizedValue = value.replace(/[^0-9.+\s]/g, '');
 //     } else {
 //       // For all other fields, allow numbers and a decimal point up to two places
 //       const match = value.match(/^\d*(\.\d{0,2})?$/);
-//       sanitizedValue = match ? match[0] : inventory[schemaKey] || ''; // Fallback to previous value on invalid input
+//       // Use the existing value from `formData` as the fallback
+//       sanitizedValue = match ? match[0] : formData[schemaKey] || '';
 //     }
     
-//     // For EditOrderForm, you would use `setFormData` instead of `setInventory`
-//     setInventory(prev => ({ ...prev, [schemaKey]: sanitizedValue }));
+//     // Use `setFormData` to update the correct state variable
+//     setFormData(prev => ({ ...prev, [schemaKey]: sanitizedValue }));
 //   };
+//   // ✅ --- END OF FIX ---
 
 //   const handlePalletChange = (id, field, value) => {
 //     setPalletRows(rows => rows.map(row => (row.id === id ? { ...row, [field]: value } : row)));
@@ -178,8 +189,8 @@
 //                   name={item.schemaKey}
 //                   value={formData[item.schemaKey] || ''}
 //                   onChange={(e) => handleInventoryChange(item.schemaKey, e.target.value)}
-//                   placeholder="e.g., 50.5 or 20+30.5"
-//                   inputMode="decimal"
+//                   placeholder="50.5"
+//                   inputMode={item.schemaKey.startsWith('cap_') ? 'text' : 'decimal'}
 //                 />
 //                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
 //                   <span className="text-gray-500 dark:text-gray-400 text-sm">{item.unit}</span>
@@ -201,42 +212,32 @@
 // };
 
 // export default EditOrderForm;
-// src/components/EditOrderForm.js
+
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { useAuth } from '../context/AuthContext'; // ✅ 1. Import useAuth to get the current user
 
-// const allInventoryItems = [
-//     { name: 'Film White', schemaKey: 'film_white', unit: 'kg' }, { name: 'Film Blue', schemaKey: 'film_blue', unit: 'kg' },
-//     { name: 'Patti Role', schemaKey: 'patti_role', unit: 'kg' }, { name: 'Packing Clip', schemaKey: 'packing_clip', unit: 'kg' },
-//     { name: 'Angle Board 24', schemaKey: 'angle_board_24', unit: 'pcs' }, { name: 'Angle Board 32', schemaKey: 'angle_board_32', unit: 'pcs' },
-//     { name: 'Angle Board 36', schemaKey: 'angle_board_36', unit: 'pcs' }, { name: 'Angle Board 39', schemaKey: 'angle_board_39', unit: 'pcs' },
-//     { name: 'Angle Board 48', schemaKey: 'angle_board_48', unit: 'pcs' }, { name: 'Cap Hit', schemaKey: 'cap_hit', unit: 'pcs' },
-//     { name: 'Cap Simple', schemaKey: 'cap_simple', unit: 'pcs' }, { name: 'Firmshit', schemaKey: 'firmshit', unit: 'pcs' },
-//     { name: 'Thermocol', schemaKey: 'thermocol', unit: 'pcs' }, { name: 'Mettle Angle', schemaKey: 'mettle_angle', unit: 'pcs' },
-//     { name: 'Black Cover', schemaKey: 'black_cover', unit: 'pcs' }, { name: 'Patiya', schemaKey: 'patiya', unit: 'pcs' },
-//     { name: 'Plypatia', schemaKey: 'plypatia', unit: 'pcs' },
-// ];
-
+// ... (allInventoryItems array remains the same)
 const allInventoryItems = [
-  { name: 'Film White', unit: 'kg', schemaKey: 'film_white' }, 
-  { name: 'Film Blue', unit: 'kg', schemaKey: 'film_blue' },
-  { name: 'Patti Roll', schemaKey: 'patti_role', unit: 'kg' }, // ✅ Changed
-  { name: 'Packing Clip', unit: 'kg', schemaKey: 'packing_clip' },
-  { name: 'Angle Board 24', unit: 'pcs', schemaKey: 'angle_board_24' }, 
-  { name: 'Angle Board 32', unit: 'pcs', schemaKey: 'angle_board_32' },
-  { name: 'Angle Board 36', unit: 'pcs', schemaKey: 'angle_board_36' }, 
-  { name: 'Angle Board 39', unit: 'pcs', schemaKey: 'angle_board_39' },
-  { name: 'Angle Board 48', unit: 'pcs', schemaKey: 'angle_board_48' }, 
-  { name: 'Hit Bag', schemaKey: 'cap_hit', unit: 'pcs' }, // ✅ Changed
-  { name: 'Sadi Bag', schemaKey: 'cap_simple', unit: 'pcs' }, // ✅ Changed
-  { name: 'Firmshit', unit: 'pcs', schemaKey: 'firmshit' }, 
-  { name: 'Thermocol', unit: 'pcs', schemaKey: 'thermocol' }, 
-  { name: 'Metal Angle', schemaKey: 'mettle_angle', unit: 'pcs' }, // ✅ Changed
-  { name: 'Black Cover', unit: 'pcs', schemaKey: 'black_cover' }, 
-  { name: 'Patiya', unit: 'pcs', schemaKey: 'patiya' }, 
-  { name: 'Plypatia', unit: 'pcs', schemaKey: 'plypatia' },
+    { name: 'Film White', unit: 'kg', schemaKey: 'film_white' }, 
+    { name: 'Film Blue', unit: 'kg', schemaKey: 'film_blue' },
+    { name: 'Patti Roll', schemaKey: 'patti_role', unit: 'kg' },
+    { name: 'Packing Clip', unit: 'kg', schemaKey: 'packing_clip' },
+    { name: 'Angle Board 24', unit: 'pcs', schemaKey: 'angle_board_24' }, 
+    { name: 'Angle Board 32', unit: 'pcs', schemaKey: 'angle_board_32' },
+    { name: 'Angle Board 36', unit: 'pcs', schemaKey: 'angle_board_36' }, 
+    { name: 'Angle Board 39', unit: 'pcs', schemaKey: 'angle_board_39' },
+    { name: 'Angle Board 48', unit: 'pcs', schemaKey: 'angle_board_48' }, 
+    { name: 'Hit Bag', schemaKey: 'cap_hit', unit: 'pcs' },
+    { name: 'Sadi Bag', schemaKey: 'cap_simple', unit: 'pcs' },
+    { name: 'Firmshit', unit: 'pcs', schemaKey: 'firmshit' }, 
+    { name: 'Thermocol', unit: 'pcs', schemaKey: 'thermocol' }, 
+    { name: 'Metal Angle', schemaKey: 'mettle_angle', unit: 'pcs' },
+    { name: 'Black Cover', unit: 'pcs', schemaKey: 'black_cover' }, 
+    { name: 'Patiya', unit: 'pcs', schemaKey: 'patiya' }, 
+    { name: 'Plypatia', unit: 'pcs', schemaKey: 'plypatia' },
 ];
 
 
@@ -251,8 +252,10 @@ const FormSelect = ({ children, ...props }) => (
 );
 
 const EditOrderForm = ({ orderToEdit, onSave, onClose, isSubmitting }) => {
+  const { user } = useAuth(); // ✅ Get the logged-in user
   const [parties, setParties] = useState([]);
   const [palletSizes, setPalletSizes] = useState([]);
+  const [associateCompanies, setAssociateCompanies] = useState([]); // ✅ 2. State for associate companies
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({});
   const [palletRows, setPalletRows] = useState([]);
@@ -262,12 +265,15 @@ const EditOrderForm = ({ orderToEdit, onSave, onClose, isSubmitting }) => {
     const fetchDropdownData = async () => {
       setLoading(true);
       try {
-        const [partiesRes, palletsRes] = await Promise.all([
+        // ✅ 3. Fetch associate companies along with other data
+        const [partiesRes, palletsRes, associatesRes] = await Promise.all([
           axios.get(`${process.env.REACT_APP_API_BASE_URL}/parties`),
           axios.get(`${process.env.REACT_APP_API_BASE_URL}/pallets`),
+          axios.get(`${process.env.REACT_APP_API_BASE_URL}/associate-companies`),
         ]);
         setParties(partiesRes.data);
         setPalletSizes(palletsRes.data);
+        setAssociateCompanies(associatesRes.data); // Set the new state
       } catch (error) {
         console.error("Failed to fetch form data", error);
       } finally {
@@ -285,6 +291,9 @@ const EditOrderForm = ({ orderToEdit, onSave, onClose, isSubmitting }) => {
         factory_id: orderToEdit.factory_id?._id || '',
         vehicle: orderToEdit.vehicle || '',
         vehicle_number: orderToEdit.vehicle_number || '',
+        // ✅ 4. Pre-fill source and sourceModel
+        source: orderToEdit.source?._id || '',
+        sourceModel: orderToEdit.sourceModel || '',
       };
       allInventoryItems.forEach(item => {
         initialFormData[item.schemaKey] = orderToEdit[item.schemaKey] || '';
@@ -308,24 +317,26 @@ const EditOrderForm = ({ orderToEdit, onSave, onClose, isSubmitting }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // ✅ --- THIS IS THE FIX ---
+  // ✅ 5. Handler for the new Source dropdown
+  const handleSourceChange = (e) => {
+    const [model, id] = e.target.value.split(':');
+    setFormData(prev => ({
+      ...prev,
+      sourceModel: model,
+      source: id,
+    }));
+  };
+
   const handleInventoryChange = (schemaKey, value) => {
     let sanitizedValue;
-    
     if (schemaKey.startsWith('cap_')) {
-      // Allow numbers, plus signs, spaces, and decimals for CAP fields
       sanitizedValue = value.replace(/[^0-9.+\s]/g, '');
     } else {
-      // For all other fields, allow numbers and a decimal point up to two places
       const match = value.match(/^\d*(\.\d{0,2})?$/);
-      // Use the existing value from `formData` as the fallback
       sanitizedValue = match ? match[0] : formData[schemaKey] || '';
     }
-    
-    // Use `setFormData` to update the correct state variable
     setFormData(prev => ({ ...prev, [schemaKey]: sanitizedValue }));
   };
-  // ✅ --- END OF FIX ---
 
   const handlePalletChange = (id, field, value) => {
     setPalletRows(rows => rows.map(row => (row.id === id ? { ...row, [field]: value } : row)));
@@ -350,6 +361,22 @@ const EditOrderForm = ({ orderToEdit, onSave, onClose, isSubmitting }) => {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Order Date</label>
           <FormInput type="date" name="date" value={formData.date || ''} onChange={handleInputChange} />
         </div>
+        
+        {/* ✅ 6. Add the Source dropdown to the form */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Source</label>
+          <FormSelect 
+            name="source" 
+            value={`${formData.sourceModel}:${formData.source}`} 
+            onChange={handleSourceChange}
+          >
+            {user && <option value={`ProductionHouse:${user.id}`}>{user.username} (You)</option>}
+            <optgroup label="Associate Companies">
+              {associateCompanies.map(comp => <option key={comp._id} value={`AssociateCompany:${comp._id}`}>{comp.name}</option>)}
+            </optgroup>
+          </FormSelect>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Party Name</label>
           <FormSelect name="party_id" value={formData.party_id || ''} onChange={handleInputChange}>
@@ -366,6 +393,7 @@ const EditOrderForm = ({ orderToEdit, onSave, onClose, isSubmitting }) => {
         </div>
       </div>
 
+      {/* ... (Rest of the form remains the same) ... */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-200 dark:border-gray-700 pt-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Vehicle</label>
