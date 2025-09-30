@@ -5,6 +5,13 @@ import { TagIcon, WrenchScrewdriverIcon, PlusCircleIcon, BugAntIcon } from '@her
 // --- The versions array is updated with the new entry at the top ---
 const versions = [
   {
+    version: '1.9.3',
+    date: 'September 30, 2025',
+    changes: [
+      { type: 'Fix', text: 'alphabetically sorted list of party , factories and associate compney', icon: BugAntIcon },
+    ],
+  },
+  {
     version: '1.9.2',
     date: 'September 24, 2025',
     changes: [
