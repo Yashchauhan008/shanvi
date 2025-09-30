@@ -9,6 +9,7 @@ const versions = [
     date: 'September 30, 2025',
     changes: [
       { type: 'Fix', text: 'alphabetically sorted list of party , factories and associate compney', icon: BugAntIcon },
+      { type: 'Fix', text: 'source added to edit order / bill form', icon: BugAntIcon },
     ],
   },
   {
