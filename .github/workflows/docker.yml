@@ -24,3 +24,6 @@ jobs:
           context: .
           push: true
           tags: yashchauhan008/shanvi-frontend:latest
+          build-args: |
+            VITE_API_URL=https://api.shanvientp.in
+
